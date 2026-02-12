@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Meal Planner">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23f5576c' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>🍳</text></svg>">
+    <title>RV Meal Planner</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: -webkit-linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: -webkit-linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: -webkit-flex;
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            -webkit-flex: 1;
+            flex: 1;
+            padding: 18px 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            color: #6c757d;
+            -webkit-transition: all 0.3s;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab.active {
+            color: #f5576c;
+            border-bottom-color: #f5576c;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 25px;
+            min-height: 500px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: #333;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f5576c;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            -webkit-transition: all 0.3s;
+            transition: all 0.3s;
+            display: -webkit-inline-flex;
+            display: inline-flex;
+            -webkit-align-items: center;
+            align-items: center;
+            gap: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .btn-primary {
+            background: -webkit-linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            -webkit-transform: translateY(-2px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: -webkit-linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            -webkit-transform: translateY(-2px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-danger {
+            background: -webkit-linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            -webkit-transform: translateY(-2px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(235, 51, 73, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px; /* Prevents iOS zoom on focus */
+            -webkit-transition: border-color 0.3s;
+            transition: border-color 0.3s;
+        }
+
+        /* Only remove appearance for text inputs, NOT checkboxes */
+        input[type="text"], input[type="number"], textarea, select {
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Checkbox styling - keep native appearance */
+        input[type="checkbox"] {
+            width: auto;
+            padding: 0;
+            border: none;
+            -webkit-appearance: checkbox;
+            appearance: checkbox;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .card-actions {
+            display: -webkit-flex;
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .ingredient-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .ingredient-list li {
+            padding: 8px 12px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .ingredient-input-row {
+            display: -webkit-flex;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ingredient-input-row input:first-child {
+            flex: 2;
+        }
+
+        .ingredient-input-row input:nth-child(2) {
+            flex: 1;
+        }
+
+        .ingredient-input-row input:nth-child(3) {
+            flex: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-header {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .trip-recipe {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .trip-recipe input[type="checkbox"] {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .trip-recipe label {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .packing-item {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            gap: 12px;
+        }
+
+        .packing-item input[type="checkbox"] {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .packing-item .item-details {
+            -webkit-flex: 1;
+            flex: 1;
+        }
+
+        .packing-item .item-status {
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .packing-item.have {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .packing-item.need {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .packing-item.need-more {
+            background: #ffe5d0;
+            color: #8a4500;
+        }
+
+        .packing-item.packed {
+            background: #e2e3e5;
+            color: #6c757d;
+        }
+
+        .packing-item.packed .item-details {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .inventory-item {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .inventory-item input {
+            width: 80px;
+        }
+
+        .inventory-item .name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+        }
+
+        .summary-box {
+            background: -webkit-linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .print-btn {
+            margin-left: 10px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .tabs, .btn, .header, .modal {
+                display: none !important;
+            }
+            .section {
+                display: block !important;
+            }
+            .section:not(#packing) {
+                display: none !important;
+            }
+            .packing-item input[type="checkbox"] {
+                -webkit-appearance: checkbox;
+                appearance: checkbox;
+            }
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .header-buttons {
+            margin-top: 15px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: center;
+            justify-content: center;
+            gap: 10px;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+        }
+
+        .header-buttons .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            padding: 10px 20px;
+        }
+
+        .header-buttons .btn:hover {
+            background: rgba(255,255,255,0.3);
+            -webkit-transform: translateY(-2px);
+            transform: translateY(-2px);
+        }
+
+        .file-input-hidden {
+            display: none;
+        }
+
+        .backup-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #004085;
+        }
+
+        .backup-info h4 {
+            margin: 0 0 8px 0;
+        }
+
+        .backup-info p {
+            margin: 0;
+            font-size: 0.95em;
+        }
+
+        /* Setup Wizard Styles */
+        .wizard-modal .modal-content {
+            max-width: 700px;
+            width: 95%;
+        }
+
+        .wizard-progress {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .wizard-progress .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #e9ecef;
+            -webkit-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+
+        .wizard-progress .dot.active {
+            background: -webkit-linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-transform: scale(1.2);
+            transform: scale(1.2);
+        }
+
+        .wizard-progress .dot.completed {
+            background: #38ef7d;
+        }
+
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        .wizard-step-title {
+            font-size: 1.1em;
+            color: #6c757d;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .wizard-items-added {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 8px;
+        }
+
+        .wizard-items-added h4 {
+            margin: 0 0 10px 0;
+            color: #004085;
+            font-size: 0.95em;
+        }
+
+        .wizard-items-added ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #004085;
+        }
+
+        .wizard-items-added li {
+            margin-bottom: 4px;
+        }
+
+        .wizard-nav {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .wizard-nav-left {
+            display: -webkit-flex;
+            display: flex;
+            gap: 10px;
+        }
+
+        .wizard-nav-right {
+            display: -webkit-flex;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-skip {
+            background: transparent;
+            color: #6c757d;
+            border: 1px solid #6c757d;
+        }
+
+        .btn-skip:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>RV Meal Planner</h1>
+            <p>Plan your camping meals and never forget an ingredient!</p>
+            <div class="header-buttons">
+                <button class="btn" onclick="openSetupWizard()">Setup Wizard</button>
+                <button class="btn" onclick="exportData()">Save Backup</button>
+                <button class="btn" onclick="document.getElementById('importFile').click()">Load Backup</button>
+                <button class="btn" onclick="showHelp()">Help</button>
+                <input type="file" id="importFile" class="file-input-hidden" accept=".json" onchange="importData(event)">
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="trip">Plan Trip</button>
+            <button class="tab" data-tab="packing">Packing</button>
+            <button class="tab" data-tab="recipes">Recipes</button>
+            <button class="tab" data-tab="staples">Staples</button>
+            <button class="tab" data-tab="inventory">What's in the RV?</button>
+        </div>
+
+        <div class="content">
+            <!-- RECIPES SECTION -->
+            <div id="recipes" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; border: none; padding: 0;">My Recipes</h2>
+                    <button class="btn btn-primary" onclick="openAddRecipeModal()">+ Add New Recipe</button>
+                </div>
+                <div id="recipeList"></div>
+            </div>
+
+            <!-- STAPLES SECTION -->
+            <div id="staples" class="section">
+                <h2>Daily Staples</h2>
+                <p>Items you need for the trip (coffee, water, cooking oil, etc.).</p>
+                <div id="staplesList"></div>
+                <div class="form-group" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                    <h3 style="margin-top: 0;">Add New Staple</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="stapleNoQuantity" onchange="toggleStapleQuantity()" style="width: 20px; height: 20px;">
+                            <span>No quantity needed (just need to have it, like salt or cooking oil)</span>
+                        </label>
+                    </div>
+                    <div class="ingredient-input-row">
+                        <input type="text" id="newStapleName" placeholder="Item (e.g., K-Cup Coffee)">
+                        <input type="text" id="newStapleAmount" placeholder="Per day (e.g., 5)">
+                        <input type="text" id="newStapleUnit" placeholder="Unit (e.g., cups)">
+                    </div>
+                    <button class="btn btn-primary" onclick="addStaple()">Add Staple</button>
+                </div>
+            </div>
+
+            <!-- TRIP PLANNER SECTION -->
+            <div id="trip" class="section active">
+                <h2>Plan Your Trip</h2>
+
+                <div class="form-group" style="padding: 20px; background: #e7f3ff; border-radius: 12px; margin-bottom: 20px;">
+                    <label for="tripDays" style="font-size: 1.1em;">How many days is your trip?</label>
+                    <div style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; margin-top: 10px;">
+                        <input type="number" id="tripDays" min="1" max="30" value="1" style="width: 80px; text-align: center; font-size: 1.2em;" onchange="updateTripDays(this.value)">
+                        <span style="font-size: 1.1em;">days</span>
+                    </div>
+                    <p class="help-text">Daily staples will be multiplied by this number.</p>
+                </div>
+
+                <h3>Select Your Meals</h3>
+                <p>Check the recipes you want to make (typically one per day):</p>
+                <div id="tripRecipeList"></div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-success" onclick="calculateTrip()">Calculate What I Need</button>
+                    <button class="btn btn-secondary" onclick="clearTripSelections()" style="margin-left: 10px;">Clear Selections</button>
+                </div>
+            </div>
+
+            <!-- INVENTORY SECTION -->
+            <div id="inventory" class="section">
+                <h2>What's in the RV?</h2>
+                <p>Enter what you already have on hand:</p>
+                <div id="inventoryList"></div>
+                <div class="form-group" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                    <h3 style="margin-top: 0;">Add New Item</h3>
+                    <div class="ingredient-input-row">
+                        <input type="text" id="newInventoryName" placeholder="Item name (e.g., Flour)">
+                        <input type="text" id="newInventoryAmount" placeholder="Amount (e.g., 2)">
+                        <input type="text" id="newInventoryUnit" placeholder="Unit (e.g., cups)">
+                    </div>
+                    <button class="btn btn-primary" onclick="addInventoryItem()">Add to Inventory</button>
+                </div>
+            </div>
+
+            <!-- PACKING LIST SECTION -->
+            <div id="packing" class="section">
+                <h2>Packing List</h2>
+                <div id="packingContent">
+                    <div class="empty-state">
+                        <p>Go to "Plan Trip" and select some recipes, then click "Calculate What I Need" to see your packing list here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HELP MODAL -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Help</h2>
+                <button class="close-btn" onclick="closeHelp()">&times;</button>
+            </div>
+            <div style="line-height: 1.6;">
+                <h3>How to Use</h3>
+                <ol style="padding-left: 20px;">
+                    <li><strong>Plan Trip</strong> - Set trip length and select which meals to make</li>
+                    <li><strong>Packing</strong> - Check off items as you pack them!</li>
+                    <li><strong>Recipes</strong> - Add your favorite camping recipes with ingredients</li>
+                    <li><strong>Staples</strong> - Add daily essentials (coffee, water, etc.)</li>
+                    <li><strong>What's in the RV?</strong> - Track items you already have on hand</li>
+                </ol>
+
+                <h3 style="margin-top: 20px;">iPad Tip: Add to Home Screen</h3>
+                <p>Make this app easy to open like a regular app:</p>
+                <ol style="padding-left: 20px;">
+                    <li>Tap the <strong>Share button</strong> (square with arrow) in Safari</li>
+                    <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                    <li>Tap <strong>"Add"</strong></li>
+                </ol>
+                <p>Now you'll have an app icon on your home screen!</p>
+
+                <h3 style="margin-top: 20px;">Backups</h3>
+                <p><strong>Save Backup</strong> - Saves all your recipes and data to a file. Do this regularly!</p>
+                <p><strong>Load Backup</strong> - Restores your data from a backup file.</p>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="closeHelp()">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT RECIPE MODAL -->
+    <div id="recipeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="recipeModalTitle">Add New Recipe</h2>
+                <button class="close-btn" onclick="closeRecipeModal()">&times;</button>
+            </div>
+            <form id="recipeForm" onsubmit="saveRecipe(event)">
+                <input type="hidden" id="recipeId">
+                <div class="form-group">
+                    <label for="recipeName">Recipe Name</label>
+                    <input type="text" id="recipeName" placeholder="e.g., Campfire Chili" required>
+                </div>
+                <div class="form-group">
+                    <label>Ingredients</label>
+                    <p class="help-text">Add each ingredient with its amount and unit</p>
+                    <div id="ingredientInputs"></div>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="addIngredientInput()">+ Add Ingredient</button>
+                </div>
+                <div class="form-group">
+                    <label for="recipeNotes">Notes (optional)</label>
+                    <textarea id="recipeNotes" rows="3" placeholder="Any special instructions or tips..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-success">Save Recipe</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeRecipeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SETUP WIZARD MODAL -->
+    <div id="wizardModal" class="modal wizard-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Setup Wizard</h2>
+                <button class="close-btn" onclick="closeSetupWizard()">&times;</button>
+            </div>
+
+            <div class="wizard-progress">
+                <div class="dot" id="wizardDot1"></div>
+                <div class="dot" id="wizardDot2"></div>
+                <div class="dot" id="wizardDot3"></div>
+            </div>
+
+            <!-- Step 1: Recipes -->
+            <div id="wizardStep1" class="wizard-step">
+                <div class="wizard-step-title">Step 1 of 3: Add Your Recipes</div>
+
+                <div class="form-group">
+                    <label for="wizardRecipeName">Recipe Name</label>
+                    <input type="text" id="wizardRecipeName" placeholder="e.g., Campfire Chili">
+                </div>
+
+                <div class="form-group">
+                    <label>Ingredients</label>
+                    <div id="wizardIngredientInputs"></div>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="addWizardIngredientInput()">+ Add Ingredient</button>
+                </div>
+
+                <button class="btn btn-success" onclick="addWizardRecipe()">+ Add This Recipe</button>
+
+                <div id="wizardRecipesAdded" class="wizard-items-added" style="display: none;">
+                    <h4>Recipes added:</h4>
+                    <ul id="wizardRecipesList"></ul>
+                </div>
+
+                <div class="wizard-nav">
+                    <div class="wizard-nav-left">
+                        <button class="btn btn-skip" onclick="wizardSkipStep()">Skip</button>
+                    </div>
+                    <div class="wizard-nav-right">
+                        <button class="btn btn-primary" onclick="wizardNextStep()">Next &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Staples -->
+            <div id="wizardStep2" class="wizard-step">
+                <div class="wizard-step-title">Step 2 of 3: Add Daily Staples</div>
+                <p class="help-text">Items you need every day (coffee, water, cooking oil, etc.)</p>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer; font-weight: normal;">
+                        <input type="checkbox" id="wizardStapleNoQuantity" onchange="toggleWizardStapleQuantity()" style="width: 20px; height: 20px;">
+                        <span>No quantity needed (just need to have it)</span>
+                    </label>
+                </div>
+
+                <div class="ingredient-input-row">
+                    <input type="text" id="wizardStapleName" placeholder="Item (e.g., K-Cup Coffee)">
+                    <input type="text" id="wizardStapleAmount" placeholder="Per day (e.g., 5)">
+                    <input type="text" id="wizardStapleUnit" placeholder="Unit (e.g., cups)">
+                </div>
+
+                <button class="btn btn-success" onclick="addWizardStaple()">+ Add This Staple</button>
+
+                <div id="wizardStaplesAdded" class="wizard-items-added" style="display: none;">
+                    <h4>Staples added:</h4>
+                    <ul id="wizardStaplesList"></ul>
+                </div>
+
+                <div class="wizard-nav">
+                    <div class="wizard-nav-left">
+                        <button class="btn btn-secondary" onclick="wizardPrevStep()">&larr; Back</button>
+                        <button class="btn btn-skip" onclick="wizardSkipStep()">Skip</button>
+                    </div>
+                    <div class="wizard-nav-right">
+                        <button class="btn btn-primary" onclick="wizardNextStep()">Next &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: What's in the RV? -->
+            <div id="wizardStep3" class="wizard-step">
+                <div class="wizard-step-title">Step 3 of 3: What's in the RV?</div>
+                <p class="help-text">Enter items you already have on hand.</p>
+
+                <div class="ingredient-input-row" style="margin-top: 15px;">
+                    <input type="text" id="wizardInventoryName" placeholder="Item name (e.g., Flour)">
+                    <input type="text" id="wizardInventoryAmount" placeholder="Amount (e.g., 2)">
+                    <input type="text" id="wizardInventoryUnit" placeholder="Unit (e.g., cups)">
+                </div>
+
+                <button class="btn btn-success" onclick="addWizardInventory()">+ Add This Item</button>
+
+                <div id="wizardInventoryAdded" class="wizard-items-added" style="display: none;">
+                    <h4>Items added:</h4>
+                    <ul id="wizardInventoryList"></ul>
+                </div>
+
+                <div class="wizard-nav">
+                    <div class="wizard-nav-left">
+                        <button class="btn btn-secondary" onclick="wizardPrevStep()">&larr; Back</button>
+                        <button class="btn btn-skip" onclick="wizardSkipStep()">Skip</button>
+                    </div>
+                    <div class="wizard-nav-right">
+                        <button class="btn btn-success" onclick="wizardFinish()">Finish</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ DATA MANAGEMENT ============
+        let recipes = [];
+        let inventory = [];
+        let staples = [];
+        let tripSelections = [];
+        let tripDays = 1;
+        let calculatedNeeds = [];
+        let calculatedStaples = [];
+        let packedItems = {}; // Track which items are packed by key
+
+        function loadData() {
+            const savedRecipes = localStorage.getItem('mealPlanner_recipes');
+            const savedInventory = localStorage.getItem('mealPlanner_inventory');
+            const savedStaples = localStorage.getItem('mealPlanner_staples');
+            const savedSelections = localStorage.getItem('mealPlanner_tripSelections');
+            const savedTripDays = localStorage.getItem('mealPlanner_tripDays');
+            const savedNeeds = localStorage.getItem('mealPlanner_calculatedNeeds');
+            const savedCalcStaples = localStorage.getItem('mealPlanner_calculatedStaples');
+            const savedPacked = localStorage.getItem('mealPlanner_packedItems');
+
+            if (savedRecipes) recipes = JSON.parse(savedRecipes);
+            if (savedInventory) inventory = JSON.parse(savedInventory);
+            if (savedStaples) staples = JSON.parse(savedStaples);
+            if (savedSelections) tripSelections = JSON.parse(savedSelections);
+            if (savedTripDays) tripDays = parseInt(savedTripDays) || 1;
+            if (savedNeeds) calculatedNeeds = JSON.parse(savedNeeds);
+            if (savedCalcStaples) calculatedStaples = JSON.parse(savedCalcStaples);
+            if (savedPacked) packedItems = JSON.parse(savedPacked);
+        }
+
+        function saveData() {
+            localStorage.setItem('mealPlanner_recipes', JSON.stringify(recipes));
+            localStorage.setItem('mealPlanner_inventory', JSON.stringify(inventory));
+            localStorage.setItem('mealPlanner_staples', JSON.stringify(staples));
+            localStorage.setItem('mealPlanner_tripSelections', JSON.stringify(tripSelections));
+            localStorage.setItem('mealPlanner_tripDays', tripDays.toString());
+            localStorage.setItem('mealPlanner_calculatedNeeds', JSON.stringify(calculatedNeeds));
+            localStorage.setItem('mealPlanner_calculatedStaples', JSON.stringify(calculatedStaples));
+            localStorage.setItem('mealPlanner_packedItems', JSON.stringify(packedItems));
+        }
+
+        // ============ TAB NAVIGATION ============
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+
+                // Refresh content when switching tabs
+                if (tab.dataset.tab === 'staples') renderStaples();
+                if (tab.dataset.tab === 'trip') renderTripPlanner();
+                if (tab.dataset.tab === 'inventory') renderInventory();
+                if (tab.dataset.tab === 'packing') renderPackingList();
+            });
+        });
+
+        // ============ RECIPES ============
+        function renderRecipes() {
+            const container = document.getElementById('recipeList');
+            if (recipes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No recipes yet! Click "Add New Recipe" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recipes.map((recipe, index) => `
+                <div class="card">
+                    <h3>${escapeHtml(recipe.name)}</h3>
+                    <ul class="ingredient-list">
+                        ${recipe.ingredients.map(ing => `
+                            <li>${escapeHtml(ing.amount)} ${escapeHtml(ing.unit)} ${escapeHtml(ing.name)}</li>
+                        `).join('')}
+                    </ul>
+                    ${recipe.notes ? `<p style="color: #6c757d; font-style: italic; margin: 10px 0;">${escapeHtml(recipe.notes)}</p>` : ''}
+                    <div class="card-actions">
+                        <button class="btn btn-primary btn-small" onclick="editRecipe(${index})">Edit</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteRecipe(${index})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddRecipeModal() {
+            document.getElementById('recipeModalTitle').textContent = 'Add New Recipe';
+            document.getElementById('recipeForm').reset();
+            document.getElementById('recipeId').value = '';
+            document.getElementById('ingredientInputs').innerHTML = '';
+            addIngredientInput();
+            addIngredientInput();
+            addIngredientInput();
+            document.getElementById('recipeModal').classList.add('active');
+        }
+
+        function closeRecipeModal() {
+            document.getElementById('recipeModal').classList.remove('active');
+        }
+
+        function addIngredientInput() {
+            const container = document.getElementById('ingredientInputs');
+            const div = document.createElement('div');
+            div.className = 'ingredient-input-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Ingredient (e.g., Ground beef)" class="ing-name">
+                <input type="text" placeholder="Amount (e.g., 1)" class="ing-amount">
+                <input type="text" placeholder="Unit (e.g., lb)" class="ing-unit">
+                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function saveRecipe(event) {
+            event.preventDefault();
+            const id = document.getElementById('recipeId').value;
+            const name = document.getElementById('recipeName').value.trim();
+            const notes = document.getElementById('recipeNotes').value.trim();
+
+            const ingredientRows = document.querySelectorAll('#ingredientInputs .ingredient-input-row');
+            const ingredients = [];
+
+            ingredientRows.forEach(row => {
+                const ingName = row.querySelector('.ing-name').value.trim();
+                const ingAmount = row.querySelector('.ing-amount').value.trim();
+                const ingUnit = row.querySelector('.ing-unit').value.trim();
+
+                if (ingName && ingAmount) {
+                    ingredients.push({
+                        name: ingName,
+                        amount: ingAmount,
+                        unit: ingUnit
+                    });
+                }
+            });
+
+            if (ingredients.length === 0) {
+                alert('Please add at least one ingredient!');
+                return;
+            }
+
+            const recipe = { name, ingredients, notes };
+
+            if (id !== '') {
+                recipes[parseInt(id)] = recipe;
+            } else {
+                recipes.push(recipe);
+            }
+
+            saveData();
+            renderRecipes();
+            closeRecipeModal();
+        }
+
+        function editRecipe(index) {
+            const recipe = recipes[index];
+            document.getElementById('recipeModalTitle').textContent = 'Edit Recipe';
+            document.getElementById('recipeId').value = index;
+            document.getElementById('recipeName').value = recipe.name;
+            document.getElementById('recipeNotes').value = recipe.notes || '';
+
+            const container = document.getElementById('ingredientInputs');
+            container.innerHTML = '';
+
+            recipe.ingredients.forEach(ing => {
+                const div = document.createElement('div');
+                div.className = 'ingredient-input-row';
+                div.innerHTML = `
+                    <input type="text" placeholder="Ingredient" class="ing-name" value="${escapeHtml(ing.name)}">
+                    <input type="text" placeholder="Amount" class="ing-amount" value="${escapeHtml(ing.amount)}">
+                    <input type="text" placeholder="Unit" class="ing-unit" value="${escapeHtml(ing.unit)}">
+                    <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('recipeModal').classList.add('active');
+        }
+
+        function deleteRecipe(index) {
+            if (confirm(`Are you sure you want to delete "${recipes[index].name}"?`)) {
+                recipes.splice(index, 1);
+                // Also remove from trip selections
+                tripSelections = tripSelections.filter(i => i !== index).map(i => i > index ? i - 1 : i);
+                saveData();
+                renderRecipes();
+            }
+        }
+
+        // ============ STAPLES ============
+        function renderStaples() {
+            const container = document.getElementById('staplesList');
+            if (staples.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No staples yet! Add items like coffee, water, cooking oil, etc.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = staples.map((item, index) => {
+                if (item.noQuantity) {
+                    return `
+                        <div class="inventory-item">
+                            <span class="name">${escapeHtml(item.name)}</span>
+                            <span style="color: #6c757d; font-style: italic;">Just need to have it</span>
+                            <button class="btn btn-danger btn-small" onclick="deleteStaple(${index})">X</button>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="inventory-item">
+                            <span class="name">${escapeHtml(item.name)}</span>
+                            <input type="text" value="${escapeHtml(item.amountPerDay)}" onchange="updateStapleAmount(${index}, this.value)">
+                            <span>${escapeHtml(item.unit)} per day</span>
+                            <button class="btn btn-danger btn-small" onclick="deleteStaple(${index})">X</button>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        function toggleStapleQuantity() {
+            const noQuantity = document.getElementById('stapleNoQuantity').checked;
+            const amountInput = document.getElementById('newStapleAmount');
+            const unitInput = document.getElementById('newStapleUnit');
+
+            if (noQuantity) {
+                amountInput.disabled = true;
+                unitInput.disabled = true;
+                amountInput.value = '';
+                unitInput.value = '';
+                amountInput.placeholder = 'N/A';
+                unitInput.placeholder = 'N/A';
+            } else {
+                amountInput.disabled = false;
+                unitInput.disabled = false;
+                amountInput.placeholder = 'Per day (e.g., 5)';
+                unitInput.placeholder = 'Unit (e.g., cups)';
+            }
+        }
+
+        function addStaple() {
+            const name = document.getElementById('newStapleName').value.trim();
+            const noQuantity = document.getElementById('stapleNoQuantity').checked;
+
+            if (!name) {
+                alert('Please enter a name for the staple!');
+                return;
+            }
+
+            if (noQuantity) {
+                staples.push({ name, noQuantity: true });
+            } else {
+                const amountPerDay = document.getElementById('newStapleAmount').value.trim();
+                const unit = document.getElementById('newStapleUnit').value.trim();
+
+                if (!amountPerDay) {
+                    alert('Please enter an amount per day, or check "No quantity needed"!');
+                    return;
+                }
+
+                staples.push({ name, amountPerDay, unit, noQuantity: false });
+            }
+
+            saveData();
+            renderStaples();
+
+            // Clear inputs
+            document.getElementById('newStapleName').value = '';
+            document.getElementById('newStapleAmount').value = '';
+            document.getElementById('newStapleUnit').value = '';
+            document.getElementById('stapleNoQuantity').checked = false;
+            toggleStapleQuantity();
+        }
+
+        function updateStapleAmount(index, value) {
+            staples[index].amountPerDay = value;
+            saveData();
+        }
+
+        function deleteStaple(index) {
+            if (confirm(`Remove "${staples[index].name}" from staples?`)) {
+                staples.splice(index, 1);
+                saveData();
+                renderStaples();
+            }
+        }
+
+        // ============ TRIP PLANNER ============
+        function renderTripPlanner() {
+            // Set the trip days input
+            document.getElementById('tripDays').value = tripDays;
+
+            const container = document.getElementById('tripRecipeList');
+            if (recipes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No recipes yet! Go to "Recipes" to add some first.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recipes.map((recipe, index) => `
+                <div class="trip-recipe">
+                    <input type="checkbox" id="trip-${index}"
+                           ${tripSelections.includes(index) ? 'checked' : ''}
+                           onchange="toggleTripSelection(${index})">
+                    <label for="trip-${index}">${escapeHtml(recipe.name)}</label>
+                    <span class="badge">${recipe.ingredients.length} ingredients</span>
+                </div>
+            `).join('');
+        }
+
+        function updateTripDays(value) {
+            tripDays = parseInt(value) || 1;
+            if (tripDays < 1) tripDays = 1;
+            if (tripDays > 30) tripDays = 30;
+            document.getElementById('tripDays').value = tripDays;
+            saveData();
+        }
+
+        function toggleTripSelection(index) {
+            if (tripSelections.includes(index)) {
+                tripSelections = tripSelections.filter(i => i !== index);
+            } else {
+                tripSelections.push(index);
+            }
+            saveData();
+        }
+
+        function clearTripSelections() {
+            tripSelections = [];
+            calculatedNeeds = [];
+            calculatedStaples = [];
+            packedItems = {};
+            saveData();
+            renderTripPlanner();
+            renderPackingList();
+        }
+
+        function calculateTrip() {
+            if (tripSelections.length === 0 && staples.length === 0) {
+                alert('Please select at least one recipe or add some daily staples!');
+                return;
+            }
+
+            // Combine all recipe ingredients
+            const combined = {};
+
+            tripSelections.forEach(recipeIndex => {
+                const recipe = recipes[recipeIndex];
+                recipe.ingredients.forEach(ing => {
+                    const key = `${ing.name.toLowerCase()}|${ing.unit.toLowerCase()}`;
+                    if (combined[key]) {
+                        // Try to add amounts if they're both numbers
+                        const existingAmount = parseFloat(combined[key].amount);
+                        const newAmount = parseFloat(ing.amount);
+                        if (!isNaN(existingAmount) && !isNaN(newAmount)) {
+                            combined[key].amount = (existingAmount + newAmount).toString();
+                        } else {
+                            combined[key].amount += ' + ' + ing.amount;
+                        }
+                    } else {
+                        combined[key] = {
+                            name: ing.name,
+                            amount: ing.amount,
+                            unit: ing.unit
+                        };
+                    }
+                });
+            });
+
+            calculatedNeeds = Object.values(combined);
+
+            // Calculate staples (multiply by trip days for quantity items)
+            calculatedStaples = staples.map(staple => {
+                if (staple.noQuantity) {
+                    return {
+                        name: staple.name,
+                        noQuantity: true
+                    };
+                } else {
+                    const perDay = parseFloat(staple.amountPerDay);
+                    const totalAmount = !isNaN(perDay) ? (perDay * tripDays).toString() : `${staple.amountPerDay} x ${tripDays}`;
+                    return {
+                        name: staple.name,
+                        amount: totalAmount,
+                        unit: staple.unit,
+                        perDay: staple.amountPerDay,
+                        noQuantity: false
+                    };
+                }
+            });
+
+            // Clear packed items when recalculating
+            packedItems = {};
+            saveData();
+
+            // Switch to packing list tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelector('[data-tab="packing"]').classList.add('active');
+            document.getElementById('packing').classList.add('active');
+            renderPackingList();
+        }
+
+        // ============ INVENTORY ============
+        function renderInventory() {
+            const container = document.getElementById('inventoryList');
+            if (inventory.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No inventory items yet. Add what you already have below!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = inventory.map((item, index) => `
+                <div class="inventory-item">
+                    <span class="name">${escapeHtml(item.name)}</span>
+                    <input type="text" value="${escapeHtml(item.amount)}" onchange="updateInventoryAmount(${index}, this.value)">
+                    <span>${escapeHtml(item.unit)}</span>
+                    <button class="btn btn-danger btn-small" onclick="deleteInventoryItem(${index})">X</button>
+                </div>
+            `).join('');
+        }
+
+        function addInventoryItem() {
+            const name = document.getElementById('newInventoryName').value.trim();
+            const amount = document.getElementById('newInventoryAmount').value.trim();
+            const unit = document.getElementById('newInventoryUnit').value.trim();
+
+            if (!name || !amount) {
+                alert('Please enter at least a name and amount!');
+                return;
+            }
+
+            inventory.push({ name, amount, unit });
+            saveData();
+            renderInventory();
+
+            // Clear inputs
+            document.getElementById('newInventoryName').value = '';
+            document.getElementById('newInventoryAmount').value = '';
+            document.getElementById('newInventoryUnit').value = '';
+        }
+
+        function updateInventoryAmount(index, value) {
+            inventory[index].amount = value;
+            saveData();
+        }
+
+        function deleteInventoryItem(index) {
+            if (confirm(`Remove "${inventory[index].name}" from inventory?`)) {
+                inventory.splice(index, 1);
+                saveData();
+                renderInventory();
+            }
+        }
+
+        // ============ PACKING LIST ============
+        function renderPackingList() {
+            const container = document.getElementById('packingContent');
+
+            if (calculatedNeeds.length === 0 && calculatedStaples.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Go to "Plan Trip" and select some recipes, then click "Calculate What I Need" to see your packing list here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const selectedRecipeNames = tripSelections.map(i => recipes[i]?.name).filter(Boolean);
+
+            // Count items that need to be packed (exclude items we already have)
+            let itemsToPack = 0;
+            let packedCount = 0;
+
+            calculatedStaples.forEach((staple, index) => {
+                const invItem = staple.noQuantity
+                    ? inventory.find(inv => inv.name.toLowerCase() === staple.name.toLowerCase())
+                    : inventory.find(inv => inv.name.toLowerCase() === staple.name.toLowerCase() && inv.unit.toLowerCase() === (staple.unit || '').toLowerCase());
+
+                const needAmount = parseFloat(staple.amount);
+                const haveAmount = invItem ? parseFloat(invItem.amount) : 0;
+                const hasEnough = staple.noQuantity ? !!invItem : (!isNaN(needAmount) && !isNaN(haveAmount) && haveAmount >= needAmount);
+
+                if (!hasEnough) {
+                    itemsToPack++;
+                    if (packedItems['staple-' + index]) packedCount++;
+                }
+            });
+
+            calculatedNeeds.forEach((need, index) => {
+                const invItem = inventory.find(inv => inv.name.toLowerCase() === need.name.toLowerCase() && inv.unit.toLowerCase() === need.unit.toLowerCase());
+                const needAmount = parseFloat(need.amount);
+                const haveAmount = invItem ? parseFloat(invItem.amount) : 0;
+                const hasEnough = !isNaN(needAmount) && !isNaN(haveAmount) && haveAmount >= needAmount;
+
+                if (!hasEnough) {
+                    itemsToPack++;
+                    if (packedItems['ingredient-' + index]) packedCount++;
+                }
+            });
+
+            let html = `
+                <div class="summary-box">
+                    <h3>Trip Summary</h3>
+                    <p><strong>Trip length:</strong> ${tripDays} day${tripDays > 1 ? 's' : ''}</p>
+                    ${selectedRecipeNames.length > 0 ? `<p><strong>Meals planned:</strong> ${selectedRecipeNames.join(', ')}</p>` : ''}
+                    <p><strong>Packed:</strong> ${packedCount} of ${itemsToPack} items to pack</p>
+                </div>
+                <div style="margin-bottom: 15px; display: -webkit-flex; display: flex; gap: 10px; -webkit-flex-wrap: wrap; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="window.print()">Print List</button>
+                    <button class="btn btn-secondary" onclick="uncheckAllPacked()">Uncheck All</button>
+                </div>
+            `;
+
+            // Process staples
+            if (calculatedStaples.length > 0) {
+                html += `<h3>Staples</h3>`;
+
+                const stapleItems = calculatedStaples.map((staple, index) => {
+                    const key = 'staple-' + index;
+                    const isPacked = packedItems[key] || false;
+
+                    // Handle no-quantity items
+                    if (staple.noQuantity) {
+                        const invItem = inventory.find(inv =>
+                            inv.name.toLowerCase() === staple.name.toLowerCase()
+                        );
+
+                        return {
+                            ...staple,
+                            key,
+                            isPacked,
+                            status: invItem ? 'have' : 'need',
+                            statusText: invItem ? 'HAVE IT' : 'NEED',
+                            displayAmount: ''
+                        };
+                    }
+
+                    // Handle quantity items
+                    const invItem = inventory.find(inv =>
+                        inv.name.toLowerCase() === staple.name.toLowerCase() &&
+                        inv.unit.toLowerCase() === (staple.unit || '').toLowerCase()
+                    );
+
+                    let status = 'need';
+                    let statusText = 'NEED';
+                    let displayAmount = `${staple.amount} ${staple.unit}`;
+
+                    if (invItem) {
+                        const needAmount = parseFloat(staple.amount);
+                        const haveAmount = parseFloat(invItem.amount);
+
+                        if (!isNaN(needAmount) && !isNaN(haveAmount)) {
+                            if (haveAmount >= needAmount) {
+                                status = 'have';
+                                statusText = 'HAVE';
+                            } else {
+                                status = 'need-more';
+                                const diff = Math.ceil(needAmount - haveAmount);
+                                statusText = `NEED ${diff}`;
+                                displayAmount = `${staple.amount} ${staple.unit}`;
+                            }
+                        }
+                    }
+
+                    return { ...staple, key, isPacked, status, statusText, displayAmount };
+                });
+
+                // Sort: unpacked first, then by need status
+                stapleItems.sort((a, b) => {
+                    if (a.isPacked !== b.isPacked) return a.isPacked ? 1 : -1;
+                    const order = { 'need': 0, 'need-more': 1, 'have': 2 };
+                    return order[a.status] - order[b.status];
+                });
+
+                html += stapleItems.map(item => {
+                    const packedClass = item.isPacked ? 'packed' : item.status;
+                    const details = item.noQuantity
+                        ? `<strong>${escapeHtml(item.name)}</strong>`
+                        : `<strong>${escapeHtml(item.name)}</strong> - ${escapeHtml(item.displayAmount)} <small>(${item.perDay}/day)</small>`;
+
+                    // No checkbox for items we already have
+                    if (item.status === 'have') {
+                        return `
+                            <div class="packing-item ${item.status}">
+                                <span class="item-details" style="padding-left: 40px;">${details}</span>
+                                <span class="item-status">HAVE IT</span>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="packing-item ${packedClass}">
+                            <input type="checkbox" ${item.isPacked ? 'checked' : ''} onchange="togglePacked('${item.key}')">
+                            <span class="item-details">${details}</span>
+                            <span class="item-status">${item.isPacked ? 'PACKED' : item.statusText}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Process recipe ingredients
+            if (calculatedNeeds.length > 0) {
+                html += `<h3 style="margin-top: 25px;">Recipe Ingredients</h3>`;
+
+                const ingredientItems = calculatedNeeds.map((need, index) => {
+                    const key = 'ingredient-' + index;
+                    const isPacked = packedItems[key] || false;
+
+                    const invItem = inventory.find(inv =>
+                        inv.name.toLowerCase() === need.name.toLowerCase() &&
+                        inv.unit.toLowerCase() === need.unit.toLowerCase()
+                    );
+
+                    let status = 'need';
+                    let statusText = 'NEED';
+                    let displayAmount = `${need.amount} ${need.unit}`;
+
+                    if (invItem) {
+                        const needAmount = parseFloat(need.amount);
+                        const haveAmount = parseFloat(invItem.amount);
+
+                        if (!isNaN(needAmount) && !isNaN(haveAmount)) {
+                            if (haveAmount >= needAmount) {
+                                status = 'have';
+                                statusText = 'HAVE';
+                            } else {
+                                status = 'need-more';
+                                const diff = needAmount - haveAmount;
+                                statusText = `NEED ${diff}`;
+                            }
+                        }
+                    }
+
+                    return { ...need, key, isPacked, status, statusText, displayAmount };
+                });
+
+                // Sort: unpacked first, then by need status
+                ingredientItems.sort((a, b) => {
+                    if (a.isPacked !== b.isPacked) return a.isPacked ? 1 : -1;
+                    const order = { 'need': 0, 'need-more': 1, 'have': 2 };
+                    return order[a.status] - order[b.status];
+                });
+
+                html += ingredientItems.map(item => {
+                    const packedClass = item.isPacked ? 'packed' : item.status;
+
+                    // No checkbox for items we already have
+                    if (item.status === 'have') {
+                        return `
+                            <div class="packing-item ${item.status}">
+                                <span class="item-details" style="padding-left: 40px;"><strong>${escapeHtml(item.name)}</strong> - ${escapeHtml(item.displayAmount)}</span>
+                                <span class="item-status">HAVE IT</span>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="packing-item ${packedClass}">
+                            <input type="checkbox" ${item.isPacked ? 'checked' : ''} onchange="togglePacked('${item.key}')">
+                            <span class="item-details"><strong>${escapeHtml(item.name)}</strong> - ${escapeHtml(item.displayAmount)}</span>
+                            <span class="item-status">${item.isPacked ? 'PACKED' : item.statusText}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            container.innerHTML = html;
+        }
+
+        function togglePacked(key) {
+            packedItems[key] = !packedItems[key];
+            saveData();
+            renderPackingList();
+        }
+
+        function uncheckAllPacked() {
+            packedItems = {};
+            saveData();
+            renderPackingList();
+        }
+
+        // ============ HELP ============
+        function showHelp() {
+            document.getElementById('helpModal').classList.add('active');
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').classList.remove('active');
+        }
+
+        // ============ SETUP WIZARD ============
+        let wizardCurrentStep = 1;
+        let wizardRecipesAddedList = [];
+        let wizardStaplesAddedList = [];
+        let wizardInventoryAddedList = [];
+
+        function openSetupWizard() {
+            // Reset wizard state
+            wizardCurrentStep = 1;
+            wizardRecipesAddedList = [];
+            wizardStaplesAddedList = [];
+            wizardInventoryAddedList = [];
+
+            // Clear all wizard forms
+            document.getElementById('wizardRecipeName').value = '';
+            document.getElementById('wizardIngredientInputs').innerHTML = '';
+            addWizardIngredientInput();
+            addWizardIngredientInput();
+            addWizardIngredientInput();
+
+            document.getElementById('wizardStapleName').value = '';
+            document.getElementById('wizardStapleAmount').value = '';
+            document.getElementById('wizardStapleUnit').value = '';
+            document.getElementById('wizardStapleNoQuantity').checked = false;
+            toggleWizardStapleQuantity();
+
+            document.getElementById('wizardInventoryName').value = '';
+            document.getElementById('wizardInventoryAmount').value = '';
+            document.getElementById('wizardInventoryUnit').value = '';
+
+            // Hide all "items added" sections
+            document.getElementById('wizardRecipesAdded').style.display = 'none';
+            document.getElementById('wizardStaplesAdded').style.display = 'none';
+            document.getElementById('wizardInventoryAdded').style.display = 'none';
+
+            // Show wizard
+            renderWizardStep();
+            document.getElementById('wizardModal').classList.add('active');
+        }
+
+        function closeSetupWizard() {
+            document.getElementById('wizardModal').classList.remove('active');
+        }
+
+        function renderWizardStep() {
+            // Update progress dots
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById('wizardDot' + i);
+                dot.classList.remove('active', 'completed');
+                if (i < wizardCurrentStep) {
+                    dot.classList.add('completed');
+                } else if (i === wizardCurrentStep) {
+                    dot.classList.add('active');
+                }
+            }
+
+            // Show current step
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById('wizardStep' + i);
+                step.classList.remove('active');
+                if (i === wizardCurrentStep) {
+                    step.classList.add('active');
+                }
+            }
+        }
+
+        function wizardNextStep() {
+            if (wizardCurrentStep < 3) {
+                wizardCurrentStep++;
+                renderWizardStep();
+            }
+        }
+
+        function wizardPrevStep() {
+            if (wizardCurrentStep > 1) {
+                wizardCurrentStep--;
+                renderWizardStep();
+            }
+        }
+
+        function wizardSkipStep() {
+            if (wizardCurrentStep < 3) {
+                wizardCurrentStep++;
+                renderWizardStep();
+            } else {
+                wizardFinish();
+            }
+        }
+
+        function wizardFinish() {
+            closeSetupWizard();
+            // Refresh all displays
+            renderRecipes();
+            renderStaples();
+            renderInventory();
+        }
+
+        function addWizardIngredientInput() {
+            const container = document.getElementById('wizardIngredientInputs');
+            const div = document.createElement('div');
+            div.className = 'ingredient-input-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Ingredient (e.g., Ground beef)" class="wizard-ing-name">
+                <input type="text" placeholder="Amount (e.g., 1)" class="wizard-ing-amount">
+                <input type="text" placeholder="Unit (e.g., lb)" class="wizard-ing-unit">
+                <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addWizardRecipe() {
+            const name = document.getElementById('wizardRecipeName').value.trim();
+            if (!name) {
+                alert('Please enter a recipe name!');
+                return;
+            }
+
+            const ingredientRows = document.querySelectorAll('#wizardIngredientInputs .ingredient-input-row');
+            const ingredients = [];
+
+            ingredientRows.forEach(row => {
+                const ingName = row.querySelector('.wizard-ing-name').value.trim();
+                const ingAmount = row.querySelector('.wizard-ing-amount').value.trim();
+                const ingUnit = row.querySelector('.wizard-ing-unit').value.trim();
+
+                if (ingName && ingAmount) {
+                    ingredients.push({
+                        name: ingName,
+                        amount: ingAmount,
+                        unit: ingUnit
+                    });
+                }
+            });
+
+            if (ingredients.length === 0) {
+                alert('Please add at least one ingredient!');
+                return;
+            }
+
+            // Add to main recipes array
+            recipes.push({ name, ingredients, notes: '' });
+            saveData();
+
+            // Track for display
+            wizardRecipesAddedList.push(name);
+            renderWizardRecipesList();
+
+            // Clear form for next entry
+            document.getElementById('wizardRecipeName').value = '';
+            document.getElementById('wizardIngredientInputs').innerHTML = '';
+            addWizardIngredientInput();
+            addWizardIngredientInput();
+            addWizardIngredientInput();
+        }
+
+        function renderWizardRecipesList() {
+            const container = document.getElementById('wizardRecipesAdded');
+            const list = document.getElementById('wizardRecipesList');
+
+            if (wizardRecipesAddedList.length > 0) {
+                container.style.display = 'block';
+                list.innerHTML = wizardRecipesAddedList.map(name => `<li>${escapeHtml(name)}</li>`).join('');
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function toggleWizardStapleQuantity() {
+            const noQuantity = document.getElementById('wizardStapleNoQuantity').checked;
+            const amountInput = document.getElementById('wizardStapleAmount');
+            const unitInput = document.getElementById('wizardStapleUnit');
+
+            if (noQuantity) {
+                amountInput.disabled = true;
+                unitInput.disabled = true;
+                amountInput.value = '';
+                unitInput.value = '';
+                amountInput.placeholder = 'N/A';
+                unitInput.placeholder = 'N/A';
+            } else {
+                amountInput.disabled = false;
+                unitInput.disabled = false;
+                amountInput.placeholder = 'Per day (e.g., 5)';
+                unitInput.placeholder = 'Unit (e.g., cups)';
+            }
+        }
+
+        function addWizardStaple() {
+            const name = document.getElementById('wizardStapleName').value.trim();
+            const noQuantity = document.getElementById('wizardStapleNoQuantity').checked;
+
+            if (!name) {
+                alert('Please enter a name for the staple!');
+                return;
+            }
+
+            if (noQuantity) {
+                staples.push({ name, noQuantity: true });
+                wizardStaplesAddedList.push(name);
+            } else {
+                const amountPerDay = document.getElementById('wizardStapleAmount').value.trim();
+                const unit = document.getElementById('wizardStapleUnit').value.trim();
+
+                if (!amountPerDay) {
+                    alert('Please enter an amount per day, or check "No quantity needed"!');
+                    return;
+                }
+
+                staples.push({ name, amountPerDay, unit, noQuantity: false });
+                wizardStaplesAddedList.push(`${name} (${amountPerDay} ${unit}/day)`);
+            }
+
+            saveData();
+            renderWizardStaplesList();
+
+            // Clear form
+            document.getElementById('wizardStapleName').value = '';
+            document.getElementById('wizardStapleAmount').value = '';
+            document.getElementById('wizardStapleUnit').value = '';
+            document.getElementById('wizardStapleNoQuantity').checked = false;
+            toggleWizardStapleQuantity();
+        }
+
+        function renderWizardStaplesList() {
+            const container = document.getElementById('wizardStaplesAdded');
+            const list = document.getElementById('wizardStaplesList');
+
+            if (wizardStaplesAddedList.length > 0) {
+                container.style.display = 'block';
+                list.innerHTML = wizardStaplesAddedList.map(name => `<li>${escapeHtml(name)}</li>`).join('');
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function addWizardInventory() {
+            const name = document.getElementById('wizardInventoryName').value.trim();
+            const amount = document.getElementById('wizardInventoryAmount').value.trim();
+            const unit = document.getElementById('wizardInventoryUnit').value.trim();
+
+            if (!name || !amount) {
+                alert('Please enter at least a name and amount!');
+                return;
+            }
+
+            inventory.push({ name, amount, unit });
+            saveData();
+
+            wizardInventoryAddedList.push(`${name} (${amount} ${unit})`);
+            renderWizardInventoryList();
+
+            // Clear form
+            document.getElementById('wizardInventoryName').value = '';
+            document.getElementById('wizardInventoryAmount').value = '';
+            document.getElementById('wizardInventoryUnit').value = '';
+        }
+
+        function renderWizardInventoryList() {
+            const container = document.getElementById('wizardInventoryAdded');
+            const list = document.getElementById('wizardInventoryList');
+
+            if (wizardInventoryAddedList.length > 0) {
+                container.style.display = 'block';
+                list.innerHTML = wizardInventoryAddedList.map(name => `<li>${escapeHtml(name)}</li>`).join('');
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // ============ UTILITIES ============
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============ EXPORT / IMPORT ============
+        function exportData() {
+            const data = {
+                version: 3,
+                exportDate: new Date().toISOString(),
+                recipes: recipes,
+                inventory: inventory,
+                staples: staples,
+                tripSelections: tripSelections,
+                tripDays: tripDays,
+                calculatedNeeds: calculatedNeeds,
+                calculatedStaples: calculatedStaples,
+                packedItems: packedItems
+            };
+
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `MealPlanner-Backup-${date}.json`;
+
+            // Safari-compatible download
+            if (navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1) {
+                // Safari approach: open in new tab with data URL
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const newWindow = window.open();
+                    if (newWindow) {
+                        newWindow.document.write('<html><head><title>Save Backup</title></head><body>');
+                        newWindow.document.write('<h2>Save Your Backup</h2>');
+                        newWindow.document.write('<p>Press <strong>Command + S</strong> (or go to File > Save As) to save this file.</p>');
+                        newWindow.document.write('<p>Save it as: <strong>' + filename + '</strong></p>');
+                        newWindow.document.write('<hr><pre style="white-space: pre-wrap; word-wrap: break-word;">' + escapeHtml(jsonString) + '</pre>');
+                        newWindow.document.write('</body></html>');
+                        newWindow.document.close();
+                    } else {
+                        alert('Please allow pop-ups for this site to save backups, or copy the data manually.');
+                    }
+                };
+                reader.readAsDataURL(blob);
+            } else {
+                // Standard approach for other browsers
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('Backup saved! Keep this file somewhere safe.');
+            }
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Validate the data has expected structure
+                    if (!data.recipes || !Array.isArray(data.recipes)) {
+                        throw new Error('Invalid backup file - missing recipes');
+                    }
+
+                    // Confirm with user
+                    const recipeCount = data.recipes.length;
+                    const inventoryCount = data.inventory ? data.inventory.length : 0;
+                    const staplesCount = data.staples ? data.staples.length : 0;
+
+                    if (!confirm(`This backup contains:\n- ${recipeCount} recipes\n- ${staplesCount} daily staples\n- ${inventoryCount} inventory items\n\nThis will REPLACE all your current data. Continue?`)) {
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // Load the data
+                    recipes = data.recipes || [];
+                    inventory = data.inventory || [];
+                    staples = data.staples || [];
+                    tripSelections = data.tripSelections || [];
+                    tripDays = data.tripDays || 1;
+                    calculatedNeeds = data.calculatedNeeds || [];
+                    calculatedStaples = data.calculatedStaples || [];
+                    packedItems = data.packedItems || {};
+
+                    // Save and refresh
+                    saveData();
+                    renderRecipes();
+
+                    alert('Backup loaded successfully!');
+
+                } catch (err) {
+                    alert('Error loading backup: ' + err.message + '\n\nMake sure you selected a valid backup file.');
+                }
+
+                // Reset file input
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
+        }
+
+        // Check for localStorage availability (Safari private mode blocks it)
+        function checkStorage() {
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        if (!checkStorage()) {
+            alert('Warning: Your browser is in private/incognito mode or has disabled storage. Your recipes will NOT be saved when you close this page. Please use regular browsing mode to save your data.');
+        }
+
+        // ============ INITIALIZATION ============
+        loadData();
+        renderTripPlanner();
+    </script>
+</body>
+</html>
