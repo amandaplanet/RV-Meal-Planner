@@ -256,15 +256,15 @@
             margin-bottom: 10px;
         }
 
-        .ingredient-input-row input:first-child {
+        .ingredient-input-row .ing-name,
+        .ingredient-input-row .wizard-ing-name {
             flex: 2;
         }
 
-        .ingredient-input-row input:nth-child(2) {
-            flex: 1;
-        }
-
-        .ingredient-input-row input:nth-child(3) {
+        .ingredient-input-row .ing-amount,
+        .ingredient-input-row .ing-unit,
+        .ingredient-input-row .wizard-ing-amount,
+        .ingredient-input-row .wizard-ing-unit {
             flex: 1;
         }
 
@@ -642,6 +642,74 @@
         .btn-skip:hover {
             background: #f8f9fa;
         }
+
+        .day-row {
+            padding: 14px 18px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .day-label {
+            font-weight: 600;
+            color: #495057;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .day-meals {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -webkit-align-items: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meal-chip {
+            display: -webkit-inline-flex;
+            display: inline-flex;
+            -webkit-align-items: center;
+            align-items: center;
+            background: -webkit-linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 0.95em;
+            gap: 8px;
+        }
+
+        .meal-chip-remove {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 0;
+            line-height: 1;
+            opacity: 0.75;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .meal-chip-remove:hover {
+            opacity: 1;
+        }
+
+        .day-add-select {
+            -webkit-appearance: auto;
+            appearance: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: white;
+            font-size: 0.95em;
+            color: #495057;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -661,7 +729,7 @@
         <div class="tabs">
             <button class="tab active" data-tab="trip">Plan Trip</button>
             <button class="tab" data-tab="packing">Packing</button>
-            <button class="tab" data-tab="recipes">Recipes</button>
+            <button class="tab" data-tab="recipes">Meals</button>
             <button class="tab" data-tab="staples">Staples</button>
             <button class="tab" data-tab="inventory">What's in the RV?</button>
         </div>
@@ -670,8 +738,8 @@
             <!-- RECIPES SECTION -->
             <div id="recipes" class="section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; border: none; padding: 0;">My Recipes</h2>
-                    <button class="btn btn-primary" onclick="openAddRecipeModal()">+ Add New Recipe</button>
+                    <h2 style="margin: 0; border: none; padding: 0;">My Meals</h2>
+                    <button class="btn btn-primary" onclick="openAddRecipeModal()">+ Add New Meal</button>
                 </div>
                 <div id="recipeList"></div>
             </div>
@@ -685,14 +753,14 @@
                     <h3 style="margin-top: 0;">Add New Staple</h3>
                     <div style="margin-bottom: 15px;">
                         <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer;">
-                            <input type="checkbox" id="stapleNoQuantity" onchange="toggleStapleQuantity()" style="width: 20px; height: 20px;">
+                            <input type="checkbox" id="stapleNoQuantity" onchange="toggleStapleQuantity()" style="width: 20px; height: 20px;" checked>
                             <span>No quantity needed (just need to have it, like salt or cooking oil)</span>
                         </label>
                     </div>
                     <div class="ingredient-input-row">
                         <input type="text" id="newStapleName" placeholder="Item (e.g., K-Cup Coffee)">
-                        <input type="text" id="newStapleAmount" placeholder="Per day (e.g., 5)">
-                        <input type="text" id="newStapleUnit" placeholder="Unit (e.g., cups)">
+                        <input type="text" id="newStapleAmount" placeholder="N/A" disabled style="opacity: 0.4;">
+                        <input type="text" id="newStapleUnit" placeholder="N/A" disabled style="opacity: 0.4;">
                     </div>
                     <button class="btn btn-primary" onclick="addStaple()">Add Staple</button>
                 </div>
@@ -711,12 +779,12 @@
                     <p class="help-text">Daily staples will be multiplied by this number.</p>
                 </div>
 
-                <h3>Select Your Meals</h3>
-                <p>Check the recipes you want to make (typically one per day):</p>
+                <h3>What's on the menu?</h3>
+                <p>Choose a meal for each day of your trip:</p>
                 <div id="tripRecipeList"></div>
                 <div style="margin-top: 20px;">
                     <button class="btn btn-success" onclick="calculateTrip()">Calculate What I Need</button>
-                    <button class="btn btn-secondary" onclick="clearTripSelections()" style="margin-left: 10px;">Clear Selections</button>
+                    <button class="btn btn-secondary" onclick="clearTripSelections()" style="margin-left: 10px;">Clear All Meals</button>
                 </div>
             </div>
 
@@ -727,10 +795,16 @@
                 <div id="inventoryList"></div>
                 <div class="form-group" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
                     <h3 style="margin-top: 0;">Add New Item</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="inventoryNoQuantity" onchange="toggleInventoryQty()" style="width: 20px; height: 20px;" checked>
+                            <span>No quantity needed (just need to have it)</span>
+                        </label>
+                    </div>
                     <div class="ingredient-input-row">
                         <input type="text" id="newInventoryName" placeholder="Item name (e.g., Flour)">
-                        <input type="text" id="newInventoryAmount" placeholder="Amount (e.g., 2)">
-                        <input type="text" id="newInventoryUnit" placeholder="Unit (e.g., cups)">
+                        <input type="text" id="newInventoryAmount" placeholder="Amount (e.g., 2)" disabled style="opacity: 0.4;">
+                        <input type="text" id="newInventoryUnit" placeholder="Unit (e.g., cups)" disabled style="opacity: 0.4;">
                     </div>
                     <button class="btn btn-primary" onclick="addInventoryItem()">Add to Inventory</button>
                 </div>
@@ -760,7 +834,7 @@
                 <ol style="padding-left: 20px;">
                     <li><strong>Plan Trip</strong> - Set trip length and select which meals to make</li>
                     <li><strong>Packing</strong> - Check off items as you pack them!</li>
-                    <li><strong>Recipes</strong> - Add your favorite camping recipes with ingredients</li>
+                    <li><strong>Meals</strong> - Add your favorite camping meals with ingredients</li>
                     <li><strong>Staples</strong> - Add daily essentials (coffee, water, etc.)</li>
                     <li><strong>What's in the RV?</strong> - Track items you already have on hand</li>
                 </ol>
@@ -794,7 +868,7 @@
             <form id="recipeForm" onsubmit="saveRecipe(event)">
                 <input type="hidden" id="recipeId">
                 <div class="form-group">
-                    <label for="recipeName">Recipe Name</label>
+                    <label for="recipeName">Meal Name</label>
                     <input type="text" id="recipeName" placeholder="e.g., Campfire Chili" required>
                 </div>
                 <div class="form-group">
@@ -831,10 +905,10 @@
 
             <!-- Step 1: Recipes -->
             <div id="wizardStep1" class="wizard-step">
-                <div class="wizard-step-title">Step 1 of 3: Add Your Recipes</div>
+                <div class="wizard-step-title">Step 1 of 3: Add Your Meals</div>
 
                 <div class="form-group">
-                    <label for="wizardRecipeName">Recipe Name</label>
+                    <label for="wizardRecipeName">Meal Name</label>
                     <input type="text" id="wizardRecipeName" placeholder="e.g., Campfire Chili">
                 </div>
 
@@ -844,10 +918,10 @@
                     <button type="button" class="btn btn-secondary btn-small" onclick="addWizardIngredientInput()">+ Add Ingredient</button>
                 </div>
 
-                <button class="btn btn-success" onclick="addWizardRecipe()">+ Add This Recipe</button>
+                <button class="btn btn-success" onclick="addWizardRecipe()">+ Add This Meal</button>
 
                 <div id="wizardRecipesAdded" class="wizard-items-added" style="display: none;">
-                    <h4>Recipes added:</h4>
+                    <h4>Meals added:</h4>
                     <ul id="wizardRecipesList"></ul>
                 </div>
 
@@ -868,15 +942,15 @@
 
                 <div class="form-group" style="margin-top: 15px;">
                     <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer; font-weight: normal;">
-                        <input type="checkbox" id="wizardStapleNoQuantity" onchange="toggleWizardStapleQuantity()" style="width: 20px; height: 20px;">
+                        <input type="checkbox" id="wizardStapleNoQuantity" onchange="toggleWizardStapleQuantity()" style="width: 20px; height: 20px;" checked>
                         <span>No quantity needed (just need to have it)</span>
                     </label>
                 </div>
 
                 <div class="ingredient-input-row">
                     <input type="text" id="wizardStapleName" placeholder="Item (e.g., K-Cup Coffee)">
-                    <input type="text" id="wizardStapleAmount" placeholder="Per day (e.g., 5)">
-                    <input type="text" id="wizardStapleUnit" placeholder="Unit (e.g., cups)">
+                    <input type="text" id="wizardStapleAmount" placeholder="N/A" disabled style="opacity: 0.4;">
+                    <input type="text" id="wizardStapleUnit" placeholder="N/A" disabled style="opacity: 0.4;">
                 </div>
 
                 <button class="btn btn-success" onclick="addWizardStaple()">+ Add This Staple</button>
@@ -902,10 +976,16 @@
                 <div class="wizard-step-title">Step 3 of 3: What's in the RV?</div>
                 <p class="help-text">Enter items you already have on hand.</p>
 
-                <div class="ingredient-input-row" style="margin-top: 15px;">
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer; font-weight: normal;">
+                        <input type="checkbox" id="wizardInventoryNoQuantity" onchange="toggleWizardInventoryQty()" style="width: 20px; height: 20px;" checked>
+                        <span>No quantity needed (just need to have it)</span>
+                    </label>
+                </div>
+                <div class="ingredient-input-row">
                     <input type="text" id="wizardInventoryName" placeholder="Item name (e.g., Flour)">
-                    <input type="text" id="wizardInventoryAmount" placeholder="Amount (e.g., 2)">
-                    <input type="text" id="wizardInventoryUnit" placeholder="Unit (e.g., cups)">
+                    <input type="text" id="wizardInventoryAmount" placeholder="Amount (e.g., 2)" disabled style="opacity: 0.4;">
+                    <input type="text" id="wizardInventoryUnit" placeholder="Unit (e.g., cups)" disabled style="opacity: 0.4;">
                 </div>
 
                 <button class="btn btn-success" onclick="addWizardInventory()">+ Add This Item</button>
@@ -933,7 +1013,7 @@
         let recipes = [];
         let inventory = [];
         let staples = [];
-        let tripSelections = [];
+        let dayAssignments = {}; // { dayNumber: recipeIndex }
         let tripDays = 1;
         let calculatedNeeds = [];
         let calculatedStaples = [];
@@ -943,7 +1023,7 @@
             const savedRecipes = localStorage.getItem('mealPlanner_recipes');
             const savedInventory = localStorage.getItem('mealPlanner_inventory');
             const savedStaples = localStorage.getItem('mealPlanner_staples');
-            const savedSelections = localStorage.getItem('mealPlanner_tripSelections');
+            const savedDayAssignments = localStorage.getItem('mealPlanner_dayAssignments');
             const savedTripDays = localStorage.getItem('mealPlanner_tripDays');
             const savedNeeds = localStorage.getItem('mealPlanner_calculatedNeeds');
             const savedCalcStaples = localStorage.getItem('mealPlanner_calculatedStaples');
@@ -952,7 +1032,15 @@
             if (savedRecipes) recipes = JSON.parse(savedRecipes);
             if (savedInventory) inventory = JSON.parse(savedInventory);
             if (savedStaples) staples = JSON.parse(savedStaples);
-            if (savedSelections) tripSelections = JSON.parse(savedSelections);
+            if (savedDayAssignments) {
+                dayAssignments = JSON.parse(savedDayAssignments);
+                // Migrate old format (single index per day → array)
+                Object.keys(dayAssignments).forEach(day => {
+                    if (!Array.isArray(dayAssignments[day])) {
+                        dayAssignments[day] = [dayAssignments[day]];
+                    }
+                });
+            }
             if (savedTripDays) tripDays = parseInt(savedTripDays) || 1;
             if (savedNeeds) calculatedNeeds = JSON.parse(savedNeeds);
             if (savedCalcStaples) calculatedStaples = JSON.parse(savedCalcStaples);
@@ -963,7 +1051,7 @@
             localStorage.setItem('mealPlanner_recipes', JSON.stringify(recipes));
             localStorage.setItem('mealPlanner_inventory', JSON.stringify(inventory));
             localStorage.setItem('mealPlanner_staples', JSON.stringify(staples));
-            localStorage.setItem('mealPlanner_tripSelections', JSON.stringify(tripSelections));
+            localStorage.setItem('mealPlanner_dayAssignments', JSON.stringify(dayAssignments));
             localStorage.setItem('mealPlanner_tripDays', tripDays.toString());
             localStorage.setItem('mealPlanner_calculatedNeeds', JSON.stringify(calculatedNeeds));
             localStorage.setItem('mealPlanner_calculatedStaples', JSON.stringify(calculatedStaples));
@@ -979,6 +1067,7 @@
                 document.getElementById(tab.dataset.tab).classList.add('active');
 
                 // Refresh content when switching tabs
+                if (tab.dataset.tab === 'recipes') renderRecipes();
                 if (tab.dataset.tab === 'staples') renderStaples();
                 if (tab.dataset.tab === 'trip') renderTripPlanner();
                 if (tab.dataset.tab === 'inventory') renderInventory();
@@ -992,7 +1081,7 @@
             if (recipes.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <p>No recipes yet! Click "Add New Recipe" to get started.</p>
+                        <p>No meals yet! Click "Add New Meal" to get started.</p>
                     </div>
                 `;
                 return;
@@ -1003,7 +1092,7 @@
                     <h3>${escapeHtml(recipe.name)}</h3>
                     <ul class="ingredient-list">
                         ${recipe.ingredients.map(ing => `
-                            <li>${escapeHtml(ing.amount)} ${escapeHtml(ing.unit)} ${escapeHtml(ing.name)}</li>
+                            <li>${ing.noQuantity ? escapeHtml(ing.name) : `${escapeHtml(ing.amount)} ${escapeHtml(ing.unit)} ${escapeHtml(ing.name)}`}</li>
                         `).join('')}
                     </ul>
                     ${recipe.notes ? `<p style="color: #6c757d; font-style: italic; margin: 10px 0;">${escapeHtml(recipe.notes)}</p>` : ''}
@@ -1016,7 +1105,7 @@
         }
 
         function openAddRecipeModal() {
-            document.getElementById('recipeModalTitle').textContent = 'Add New Recipe';
+            document.getElementById('recipeModalTitle').textContent = 'Add New Meal';
             document.getElementById('recipeForm').reset();
             document.getElementById('recipeId').value = '';
             document.getElementById('ingredientInputs').innerHTML = '';
@@ -1035,9 +1124,12 @@
             const div = document.createElement('div');
             div.className = 'ingredient-input-row';
             div.innerHTML = `
-                <input type="text" placeholder="Ingredient (e.g., Ground beef)" class="ing-name">
-                <input type="text" placeholder="Amount (e.g., 1)" class="ing-amount">
-                <input type="text" placeholder="Unit (e.g., lb)" class="ing-unit">
+                <input type="text" placeholder="Item (e.g., Ground beef)" class="ing-name">
+                <input type="text" placeholder="Amount (e.g., 1)" class="ing-amount" disabled style="opacity: 0.4;">
+                <input type="text" placeholder="Unit (e.g., lb)" class="ing-unit" disabled style="opacity: 0.4;">
+                <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.85em; font-weight: normal; cursor: pointer; margin: 0;">
+                    <input type="checkbox" class="ing-no-qty" checked onchange="toggleIngredientQty(this)"> no qty
+                </label>
                 <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
             `;
             container.appendChild(div);
@@ -1054,14 +1146,17 @@
 
             ingredientRows.forEach(row => {
                 const ingName = row.querySelector('.ing-name').value.trim();
+                const noQtyCheckbox = row.querySelector('.ing-no-qty');
+                const noQty = noQtyCheckbox ? noQtyCheckbox.checked : false;
                 const ingAmount = row.querySelector('.ing-amount').value.trim();
                 const ingUnit = row.querySelector('.ing-unit').value.trim();
 
-                if (ingName && ingAmount) {
+                if (ingName && (noQty || ingAmount)) {
                     ingredients.push({
                         name: ingName,
-                        amount: ingAmount,
-                        unit: ingUnit
+                        amount: noQty ? '' : ingAmount,
+                        unit: noQty ? '' : ingUnit,
+                        noQuantity: noQty
                     });
                 }
             });
@@ -1086,7 +1181,7 @@
 
         function editRecipe(index) {
             const recipe = recipes[index];
-            document.getElementById('recipeModalTitle').textContent = 'Edit Recipe';
+            document.getElementById('recipeModalTitle').textContent = 'Edit Meal';
             document.getElementById('recipeId').value = index;
             document.getElementById('recipeName').value = recipe.name;
             document.getElementById('recipeNotes').value = recipe.notes || '';
@@ -1095,12 +1190,16 @@
             container.innerHTML = '';
 
             recipe.ingredients.forEach(ing => {
+                const noQty = ing.noQuantity || false;
                 const div = document.createElement('div');
                 div.className = 'ingredient-input-row';
                 div.innerHTML = `
-                    <input type="text" placeholder="Ingredient" class="ing-name" value="${escapeHtml(ing.name)}">
-                    <input type="text" placeholder="Amount" class="ing-amount" value="${escapeHtml(ing.amount)}">
-                    <input type="text" placeholder="Unit" class="ing-unit" value="${escapeHtml(ing.unit)}">
+                    <input type="text" placeholder="Item" class="ing-name" value="${escapeHtml(ing.name)}">
+                    <input type="text" placeholder="Amount" class="ing-amount" value="${escapeHtml(ing.amount)}" ${noQty ? 'disabled style="opacity: 0.4;"' : ''}>
+                    <input type="text" placeholder="Unit" class="ing-unit" value="${escapeHtml(ing.unit)}" ${noQty ? 'disabled style="opacity: 0.4;"' : ''}>
+                    <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.85em; font-weight: normal; cursor: pointer; margin: 0;">
+                        <input type="checkbox" class="ing-no-qty" ${noQty ? 'checked' : ''} onchange="toggleIngredientQty(this)"> no qty
+                    </label>
                     <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
                 `;
                 container.appendChild(div);
@@ -1112,8 +1211,15 @@
         function deleteRecipe(index) {
             if (confirm(`Are you sure you want to delete "${recipes[index].name}"?`)) {
                 recipes.splice(index, 1);
-                // Also remove from trip selections
-                tripSelections = tripSelections.filter(i => i !== index).map(i => i > index ? i - 1 : i);
+                // Update day assignments: drop deleted, shift down higher indices
+                const newAssignments = {};
+                Object.entries(dayAssignments).forEach(([day, meals]) => {
+                    const updated = meals
+                        .filter(idx => idx !== index)
+                        .map(idx => idx > index ? idx - 1 : idx);
+                    if (updated.length > 0) newAssignments[day] = updated;
+                });
+                dayAssignments = newAssignments;
                 saveData();
                 renderRecipes();
             }
@@ -1203,7 +1309,7 @@
             document.getElementById('newStapleName').value = '';
             document.getElementById('newStapleAmount').value = '';
             document.getElementById('newStapleUnit').value = '';
-            document.getElementById('stapleNoQuantity').checked = false;
+            document.getElementById('stapleNoQuantity').checked = true;
             toggleStapleQuantity();
         }
 
@@ -1222,28 +1328,47 @@
 
         // ============ TRIP PLANNER ============
         function renderTripPlanner() {
-            // Set the trip days input
             document.getElementById('tripDays').value = tripDays;
 
             const container = document.getElementById('tripRecipeList');
             if (recipes.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <p>No recipes yet! Go to "Recipes" to add some first.</p>
+                        <p>No meals yet! Go to "Meals" to add some first.</p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = recipes.map((recipe, index) => `
-                <div class="trip-recipe">
-                    <input type="checkbox" id="trip-${index}"
-                           ${tripSelections.includes(index) ? 'checked' : ''}
-                           onchange="toggleTripSelection(${index})">
-                    <label for="trip-${index}">${escapeHtml(recipe.name)}</label>
-                    <span class="badge">${recipe.ingredients.length} ingredients</span>
-                </div>
-            `).join('');
+            let html = '';
+            for (let day = 1; day <= tripDays; day++) {
+                const meals = dayAssignments[day] || [];
+
+                const chips = meals.map((recipeIdx, slotIdx) => {
+                    const name = recipes[recipeIdx] ? recipes[recipeIdx].name : '(deleted)';
+                    return `<span class="meal-chip">${escapeHtml(name)}<button type="button" class="meal-chip-remove" onclick="removeMealFromDay(${day}, ${slotIdx})">×</button></span>`;
+                }).join('');
+
+                const options = recipes.map((recipe, index) =>
+                    `<option value="${index}">${escapeHtml(recipe.name)}</option>`
+                ).join('');
+
+                const placeholder = meals.length === 0 ? '— No meal planned —' : '+ Add another meal...';
+
+                html += `
+                    <div class="day-row">
+                        <span class="day-label">Day ${day}</span>
+                        <div class="day-meals">
+                            ${chips}
+                            <select class="day-add-select" onchange="if(this.value !== '') { addMealToDay(${day}, parseInt(this.value)); this.value=''; }">
+                                <option value="">${placeholder}</option>
+                                ${options}
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
         }
 
         function updateTripDays(value) {
@@ -1252,19 +1377,26 @@
             if (tripDays > 30) tripDays = 30;
             document.getElementById('tripDays').value = tripDays;
             saveData();
+            renderTripPlanner();
         }
 
-        function toggleTripSelection(index) {
-            if (tripSelections.includes(index)) {
-                tripSelections = tripSelections.filter(i => i !== index);
-            } else {
-                tripSelections.push(index);
-            }
+        function addMealToDay(day, recipeIndex) {
+            if (!dayAssignments[day]) dayAssignments[day] = [];
+            dayAssignments[day].push(recipeIndex);
             saveData();
+            renderTripPlanner();
+        }
+
+        function removeMealFromDay(day, slotIndex) {
+            if (!dayAssignments[day]) return;
+            dayAssignments[day].splice(slotIndex, 1);
+            if (dayAssignments[day].length === 0) delete dayAssignments[day];
+            saveData();
+            renderTripPlanner();
         }
 
         function clearTripSelections() {
-            tripSelections = [];
+            dayAssignments = {};
             calculatedNeeds = [];
             calculatedStaples = [];
             packedItems = {};
@@ -1274,33 +1406,48 @@
         }
 
         function calculateTrip() {
-            if (tripSelections.length === 0 && staples.length === 0) {
-                alert('Please select at least one recipe or add some daily staples!');
+            const assignedRecipes = [];
+            for (let day = 1; day <= tripDays; day++) {
+                const meals = dayAssignments[day] || [];
+                meals.forEach(recipeIndex => {
+                    if (recipes[recipeIndex]) assignedRecipes.push(recipeIndex);
+                });
+            }
+
+            if (assignedRecipes.length === 0 && staples.length === 0) {
+                alert('Please assign at least one meal to a day, or add some daily staples!');
                 return;
             }
 
             // Combine all recipe ingredients
             const combined = {};
 
-            tripSelections.forEach(recipeIndex => {
+            assignedRecipes.forEach(recipeIndex => {
                 const recipe = recipes[recipeIndex];
                 recipe.ingredients.forEach(ing => {
-                    const key = `${ing.name.toLowerCase()}|${ing.unit.toLowerCase()}`;
-                    if (combined[key]) {
-                        // Try to add amounts if they're both numbers
-                        const existingAmount = parseFloat(combined[key].amount);
-                        const newAmount = parseFloat(ing.amount);
-                        if (!isNaN(existingAmount) && !isNaN(newAmount)) {
-                            combined[key].amount = (existingAmount + newAmount).toString();
-                        } else {
-                            combined[key].amount += ' + ' + ing.amount;
+                    if (ing.noQuantity) {
+                        const key = `noqty|${ing.name.toLowerCase()}`;
+                        if (!combined[key]) {
+                            combined[key] = { name: ing.name, noQuantity: true, amount: '', unit: '' };
                         }
                     } else {
-                        combined[key] = {
-                            name: ing.name,
-                            amount: ing.amount,
-                            unit: ing.unit
-                        };
+                        const key = `${ing.name.toLowerCase()}|${ing.unit.toLowerCase()}`;
+                        if (combined[key]) {
+                            const existingAmount = parseFloat(combined[key].amount);
+                            const newAmount = parseFloat(ing.amount);
+                            if (!isNaN(existingAmount) && !isNaN(newAmount)) {
+                                combined[key].amount = (existingAmount + newAmount).toString();
+                            } else {
+                                combined[key].amount += ' + ' + ing.amount;
+                            }
+                        } else {
+                            combined[key] = {
+                                name: ing.name,
+                                amount: ing.amount,
+                                unit: ing.unit,
+                                noQuantity: false
+                            };
+                        }
                     }
                 });
             });
@@ -1351,27 +1498,49 @@
                 return;
             }
 
-            container.innerHTML = inventory.map((item, index) => `
-                <div class="inventory-item">
-                    <span class="name">${escapeHtml(item.name)}</span>
-                    <input type="text" value="${escapeHtml(item.amount)}" onchange="updateInventoryAmount(${index}, this.value)">
-                    <span>${escapeHtml(item.unit)}</span>
-                    <button class="btn btn-danger btn-small" onclick="deleteInventoryItem(${index})">X</button>
-                </div>
-            `).join('');
+            container.innerHTML = inventory.map((item, index) => {
+                if (item.noQuantity) {
+                    return `
+                        <div class="inventory-item">
+                            <span class="name">${escapeHtml(item.name)}</span>
+                            <span style="color: #6c757d; font-style: italic;">Just need to have it</span>
+                            <button class="btn btn-danger btn-small" onclick="deleteInventoryItem(${index})">X</button>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="inventory-item">
+                        <span class="name">${escapeHtml(item.name)}</span>
+                        <input type="text" value="${escapeHtml(item.amount)}" onchange="updateInventoryAmount(${index}, this.value)">
+                        <span>${escapeHtml(item.unit)}</span>
+                        <button class="btn btn-danger btn-small" onclick="deleteInventoryItem(${index})">X</button>
+                    </div>
+                `;
+            }).join('');
         }
 
         function addInventoryItem() {
             const name = document.getElementById('newInventoryName').value.trim();
+            const noQuantity = document.getElementById('inventoryNoQuantity').checked;
             const amount = document.getElementById('newInventoryAmount').value.trim();
             const unit = document.getElementById('newInventoryUnit').value.trim();
 
-            if (!name || !amount) {
-                alert('Please enter at least a name and amount!');
+            if (!name) {
+                alert('Please enter an item name!');
                 return;
             }
 
-            inventory.push({ name, amount, unit });
+            if (!noQuantity && !amount) {
+                alert('Please enter an amount, or check "No quantity needed"!');
+                return;
+            }
+
+            if (noQuantity) {
+                inventory.push({ name, noQuantity: true, amount: '', unit: '' });
+            } else {
+                inventory.push({ name, amount, unit, noQuantity: false });
+            }
+
             saveData();
             renderInventory();
 
@@ -1379,6 +1548,8 @@
             document.getElementById('newInventoryName').value = '';
             document.getElementById('newInventoryAmount').value = '';
             document.getElementById('newInventoryUnit').value = '';
+            document.getElementById('inventoryNoQuantity').checked = true;
+            toggleInventoryQty();
         }
 
         function updateInventoryAmount(index, value) {
@@ -1407,7 +1578,12 @@
                 return;
             }
 
-            const selectedRecipeNames = tripSelections.map(i => recipes[i]?.name).filter(Boolean);
+            const mealsByDay = [];
+            for (let day = 1; day <= tripDays; day++) {
+                const meals = dayAssignments[day] || [];
+                const names = meals.map(idx => recipes[idx]?.name).filter(Boolean);
+                if (names.length > 0) mealsByDay.push(`Day ${day}: ${names.join(', ')}`);
+            }
 
             // Count items that need to be packed (exclude items we already have)
             let itemsToPack = 0;
@@ -1429,10 +1605,16 @@
             });
 
             calculatedNeeds.forEach((need, index) => {
-                const invItem = inventory.find(inv => inv.name.toLowerCase() === need.name.toLowerCase() && inv.unit.toLowerCase() === need.unit.toLowerCase());
-                const needAmount = parseFloat(need.amount);
-                const haveAmount = invItem ? parseFloat(invItem.amount) : 0;
-                const hasEnough = !isNaN(needAmount) && !isNaN(haveAmount) && haveAmount >= needAmount;
+                let hasEnough;
+                if (need.noQuantity) {
+                    const invItem = inventory.find(inv => inv.name.toLowerCase() === need.name.toLowerCase());
+                    hasEnough = !!invItem;
+                } else {
+                    const invItem = inventory.find(inv => inv.name.toLowerCase() === need.name.toLowerCase() && inv.unit.toLowerCase() === need.unit.toLowerCase());
+                    const needAmount = parseFloat(need.amount);
+                    const haveAmount = invItem ? parseFloat(invItem.amount) : 0;
+                    hasEnough = !isNaN(needAmount) && !isNaN(haveAmount) && haveAmount >= needAmount;
+                }
 
                 if (!hasEnough) {
                     itemsToPack++;
@@ -1444,7 +1626,7 @@
                 <div class="summary-box">
                     <h3>Trip Summary</h3>
                     <p><strong>Trip length:</strong> ${tripDays} day${tripDays > 1 ? 's' : ''}</p>
-                    ${selectedRecipeNames.length > 0 ? `<p><strong>Meals planned:</strong> ${selectedRecipeNames.join(', ')}</p>` : ''}
+                    ${mealsByDay.length > 0 ? `<p><strong>Meals:</strong> ${mealsByDay.join(' &nbsp;·&nbsp; ')}</p>` : ''}
                     <p><strong>Packed:</strong> ${packedCount} of ${itemsToPack} items to pack</p>
                 </div>
                 <div style="margin-bottom: 15px; display: -webkit-flex; display: flex; gap: 10px; -webkit-flex-wrap: wrap; flex-wrap: wrap;">
@@ -1548,27 +1730,34 @@
                     const key = 'ingredient-' + index;
                     const isPacked = packedItems[key] || false;
 
-                    const invItem = inventory.find(inv =>
-                        inv.name.toLowerCase() === need.name.toLowerCase() &&
-                        inv.unit.toLowerCase() === need.unit.toLowerCase()
-                    );
-
                     let status = 'need';
                     let statusText = 'NEED';
-                    let displayAmount = `${need.amount} ${need.unit}`;
+                    let displayAmount = '';
 
-                    if (invItem) {
-                        const needAmount = parseFloat(need.amount);
-                        const haveAmount = parseFloat(invItem.amount);
-
-                        if (!isNaN(needAmount) && !isNaN(haveAmount)) {
-                            if (haveAmount >= needAmount) {
-                                status = 'have';
-                                statusText = 'HAVE';
-                            } else {
-                                status = 'need-more';
-                                const diff = needAmount - haveAmount;
-                                statusText = `NEED ${diff}`;
+                    if (need.noQuantity) {
+                        const invItem = inventory.find(inv =>
+                            inv.name.toLowerCase() === need.name.toLowerCase()
+                        );
+                        status = invItem ? 'have' : 'need';
+                        statusText = invItem ? 'HAVE' : 'NEED';
+                    } else {
+                        displayAmount = `${need.amount} ${need.unit}`;
+                        const invItem = inventory.find(inv =>
+                            inv.name.toLowerCase() === need.name.toLowerCase() &&
+                            inv.unit.toLowerCase() === need.unit.toLowerCase()
+                        );
+                        if (invItem) {
+                            const needAmount = parseFloat(need.amount);
+                            const haveAmount = parseFloat(invItem.amount);
+                            if (!isNaN(needAmount) && !isNaN(haveAmount)) {
+                                if (haveAmount >= needAmount) {
+                                    status = 'have';
+                                    statusText = 'HAVE';
+                                } else {
+                                    status = 'need-more';
+                                    const diff = needAmount - haveAmount;
+                                    statusText = `NEED ${diff}`;
+                                }
                             }
                         }
                     }
@@ -1590,7 +1779,7 @@
                     if (item.status === 'have') {
                         return `
                             <div class="packing-item ${item.status}">
-                                <span class="item-details" style="padding-left: 40px;"><strong>${escapeHtml(item.name)}</strong> - ${escapeHtml(item.displayAmount)}</span>
+                                <span class="item-details" style="padding-left: 40px;"><strong>${escapeHtml(item.name)}</strong>${item.displayAmount ? ' - ' + escapeHtml(item.displayAmount) : ''}</span>
                                 <span class="item-status">HAVE IT</span>
                             </div>
                         `;
@@ -1599,7 +1788,7 @@
                     return `
                         <div class="packing-item ${packedClass}">
                             <input type="checkbox" ${item.isPacked ? 'checked' : ''} onchange="togglePacked('${item.key}')">
-                            <span class="item-details"><strong>${escapeHtml(item.name)}</strong> - ${escapeHtml(item.displayAmount)}</span>
+                            <span class="item-details"><strong>${escapeHtml(item.name)}</strong>${item.displayAmount ? ' - ' + escapeHtml(item.displayAmount) : ''}</span>
                             <span class="item-status">${item.isPacked ? 'PACKED' : item.statusText}</span>
                         </div>
                     `;
@@ -1659,6 +1848,12 @@
             document.getElementById('wizardInventoryName').value = '';
             document.getElementById('wizardInventoryAmount').value = '';
             document.getElementById('wizardInventoryUnit').value = '';
+
+            document.getElementById('wizardInventoryName').value = '';
+            document.getElementById('wizardInventoryAmount').value = '';
+            document.getElementById('wizardInventoryUnit').value = '';
+            document.getElementById('wizardInventoryNoQuantity').checked = true;
+            toggleWizardInventoryQty();
 
             // Hide all "items added" sections
             document.getElementById('wizardRecipesAdded').style.display = 'none';
@@ -1732,9 +1927,12 @@
             const div = document.createElement('div');
             div.className = 'ingredient-input-row';
             div.innerHTML = `
-                <input type="text" placeholder="Ingredient (e.g., Ground beef)" class="wizard-ing-name">
-                <input type="text" placeholder="Amount (e.g., 1)" class="wizard-ing-amount">
-                <input type="text" placeholder="Unit (e.g., lb)" class="wizard-ing-unit">
+                <input type="text" placeholder="Item (e.g., Ground beef)" class="wizard-ing-name">
+                <input type="text" placeholder="Amount (e.g., 1)" class="wizard-ing-amount" disabled style="opacity: 0.4;">
+                <input type="text" placeholder="Unit (e.g., lb)" class="wizard-ing-unit" disabled style="opacity: 0.4;">
+                <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.85em; font-weight: normal; cursor: pointer; margin: 0;">
+                    <input type="checkbox" class="wizard-ing-no-qty" checked onchange="toggleWizardIngredientQty(this)"> no qty
+                </label>
                 <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
             `;
             container.appendChild(div);
@@ -1743,7 +1941,7 @@
         function addWizardRecipe() {
             const name = document.getElementById('wizardRecipeName').value.trim();
             if (!name) {
-                alert('Please enter a recipe name!');
+                alert('Please enter a meal name!');
                 return;
             }
 
@@ -1752,14 +1950,17 @@
 
             ingredientRows.forEach(row => {
                 const ingName = row.querySelector('.wizard-ing-name').value.trim();
+                const noQtyCheckbox = row.querySelector('.wizard-ing-no-qty');
+                const noQty = noQtyCheckbox ? noQtyCheckbox.checked : false;
                 const ingAmount = row.querySelector('.wizard-ing-amount').value.trim();
                 const ingUnit = row.querySelector('.wizard-ing-unit').value.trim();
 
-                if (ingName && ingAmount) {
+                if (ingName && (noQty || ingAmount)) {
                     ingredients.push({
                         name: ingName,
-                        amount: ingAmount,
-                        unit: ingUnit
+                        amount: noQty ? '' : ingAmount,
+                        unit: noQty ? '' : ingUnit,
+                        noQuantity: noQty
                     });
                 }
             });
@@ -1849,7 +2050,7 @@
             document.getElementById('wizardStapleName').value = '';
             document.getElementById('wizardStapleAmount').value = '';
             document.getElementById('wizardStapleUnit').value = '';
-            document.getElementById('wizardStapleNoQuantity').checked = false;
+            document.getElementById('wizardStapleNoQuantity').checked = true;
             toggleWizardStapleQuantity();
         }
 
@@ -1867,24 +2068,37 @@
 
         function addWizardInventory() {
             const name = document.getElementById('wizardInventoryName').value.trim();
+            const noQuantity = document.getElementById('wizardInventoryNoQuantity').checked;
             const amount = document.getElementById('wizardInventoryAmount').value.trim();
             const unit = document.getElementById('wizardInventoryUnit').value.trim();
 
-            if (!name || !amount) {
-                alert('Please enter at least a name and amount!');
+            if (!name) {
+                alert('Please enter an item name!');
                 return;
             }
 
-            inventory.push({ name, amount, unit });
-            saveData();
+            if (!noQuantity && !amount) {
+                alert('Please enter an amount, or check "No quantity needed"!');
+                return;
+            }
 
-            wizardInventoryAddedList.push(`${name} (${amount} ${unit})`);
+            if (noQuantity) {
+                inventory.push({ name, noQuantity: true, amount: '', unit: '' });
+                wizardInventoryAddedList.push(name);
+            } else {
+                inventory.push({ name, amount, unit, noQuantity: false });
+                wizardInventoryAddedList.push(`${name} (${amount} ${unit})`);
+            }
+
+            saveData();
             renderWizardInventoryList();
 
             // Clear form
             document.getElementById('wizardInventoryName').value = '';
             document.getElementById('wizardInventoryAmount').value = '';
             document.getElementById('wizardInventoryUnit').value = '';
+            document.getElementById('wizardInventoryNoQuantity').checked = true;
+            toggleWizardInventoryQty();
         }
 
         function renderWizardInventoryList() {
@@ -1899,6 +2113,83 @@
             }
         }
 
+        // ============ TOGGLE HELPERS ============
+        function toggleIngredientQty(checkbox) {
+            const row = checkbox.closest('.ingredient-input-row');
+            const amountInput = row.querySelector('.ing-amount');
+            const unitInput = row.querySelector('.ing-unit');
+            if (checkbox.checked) {
+                amountInput.disabled = true;
+                amountInput.value = '';
+                amountInput.style.opacity = '0.4';
+                unitInput.disabled = true;
+                unitInput.value = '';
+                unitInput.style.opacity = '0.4';
+            } else {
+                amountInput.disabled = false;
+                amountInput.style.opacity = '1';
+                unitInput.disabled = false;
+                unitInput.style.opacity = '1';
+            }
+        }
+
+        function toggleWizardIngredientQty(checkbox) {
+            const row = checkbox.closest('.ingredient-input-row');
+            const amountInput = row.querySelector('.wizard-ing-amount');
+            const unitInput = row.querySelector('.wizard-ing-unit');
+            if (checkbox.checked) {
+                amountInput.disabled = true;
+                amountInput.value = '';
+                amountInput.style.opacity = '0.4';
+                unitInput.disabled = true;
+                unitInput.value = '';
+                unitInput.style.opacity = '0.4';
+            } else {
+                amountInput.disabled = false;
+                amountInput.style.opacity = '1';
+                unitInput.disabled = false;
+                unitInput.style.opacity = '1';
+            }
+        }
+
+        function toggleInventoryQty() {
+            const noQuantity = document.getElementById('inventoryNoQuantity').checked;
+            const amountInput = document.getElementById('newInventoryAmount');
+            const unitInput = document.getElementById('newInventoryUnit');
+            if (noQuantity) {
+                amountInput.disabled = true;
+                amountInput.value = '';
+                amountInput.style.opacity = '0.4';
+                unitInput.disabled = true;
+                unitInput.value = '';
+                unitInput.style.opacity = '0.4';
+            } else {
+                amountInput.disabled = false;
+                amountInput.style.opacity = '1';
+                unitInput.disabled = false;
+                unitInput.style.opacity = '1';
+            }
+        }
+
+        function toggleWizardInventoryQty() {
+            const noQuantity = document.getElementById('wizardInventoryNoQuantity').checked;
+            const amountInput = document.getElementById('wizardInventoryAmount');
+            const unitInput = document.getElementById('wizardInventoryUnit');
+            if (noQuantity) {
+                amountInput.disabled = true;
+                amountInput.value = '';
+                amountInput.style.opacity = '0.4';
+                unitInput.disabled = true;
+                unitInput.value = '';
+                unitInput.style.opacity = '0.4';
+            } else {
+                amountInput.disabled = false;
+                amountInput.style.opacity = '1';
+                unitInput.disabled = false;
+                unitInput.style.opacity = '1';
+            }
+        }
+
         // ============ UTILITIES ============
         function escapeHtml(text) {
             if (!text) return '';
@@ -1910,12 +2201,12 @@
         // ============ EXPORT / IMPORT ============
         function exportData() {
             const data = {
-                version: 3,
+                version: 4,
                 exportDate: new Date().toISOString(),
                 recipes: recipes,
                 inventory: inventory,
                 staples: staples,
-                tripSelections: tripSelections,
+                dayAssignments: dayAssignments,
                 tripDays: tripDays,
                 calculatedNeeds: calculatedNeeds,
                 calculatedStaples: calculatedStaples,
@@ -1988,7 +2279,13 @@
                     recipes = data.recipes || [];
                     inventory = data.inventory || [];
                     staples = data.staples || [];
-                    tripSelections = data.tripSelections || [];
+                    dayAssignments = data.dayAssignments || {};
+                    // Migrate old single-value format to arrays
+                    Object.keys(dayAssignments).forEach(day => {
+                        if (!Array.isArray(dayAssignments[day])) {
+                            dayAssignments[day] = [dayAssignments[day]];
+                        }
+                    });
                     tripDays = data.tripDays || 1;
                     calculatedNeeds = data.calculatedNeeds || [];
                     calculatedStaples = data.calculatedStaples || [];
@@ -2029,6 +2326,8 @@
         // ============ INITIALIZATION ============
         loadData();
         renderTripPlanner();
+        toggleStapleQuantity();
+        toggleInventoryQty();
     </script>
 </body>
 </html>
