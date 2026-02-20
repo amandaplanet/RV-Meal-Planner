@@ -751,16 +751,11 @@
                 <div id="staplesList"></div>
                 <div class="form-group" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
                     <h3 style="margin-top: 0;">Add New Staple</h3>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer;">
-                            <input type="checkbox" id="stapleNoQuantity" onchange="toggleStapleQuantity()" style="width: 20px; height: 20px;" checked>
-                            <span>No quantity needed (just need to have it, like salt or cooking oil)</span>
-                        </label>
-                    </div>
                     <div class="ingredient-input-row">
-                        <input type="text" id="newStapleName" placeholder="Item (e.g., K-Cup Coffee)">
-                        <input type="text" id="newStapleAmount" placeholder="N/A" disabled style="opacity: 0.4;">
-                        <input type="text" id="newStapleUnit" placeholder="N/A" disabled style="opacity: 0.4;">
+                        <input type="text" id="newStapleName" placeholder="Item (e.g., K-Cup Coffee)" style="flex: 1;">
+                        <button type="button" class="btn btn-secondary btn-small" id="stapleAddQtyBtn" onclick="showStapleQty()">+ Add qty</button>
+                        <input type="text" id="newStapleAmount" placeholder="Per day (e.g., 5)" style="display: none;">
+                        <input type="text" id="newStapleUnit" placeholder="Unit (e.g., cups)" style="display: none;">
                     </div>
                     <button class="btn btn-primary" onclick="addStaple()">Add Staple</button>
                 </div>
@@ -795,16 +790,11 @@
                 <div id="inventoryList"></div>
                 <div class="form-group" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
                     <h3 style="margin-top: 0;">Add New Item</h3>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer;">
-                            <input type="checkbox" id="inventoryNoQuantity" onchange="toggleInventoryQty()" style="width: 20px; height: 20px;" checked>
-                            <span>No quantity needed (just need to have it)</span>
-                        </label>
-                    </div>
                     <div class="ingredient-input-row">
-                        <input type="text" id="newInventoryName" placeholder="Item name (e.g., Flour)">
-                        <input type="text" id="newInventoryAmount" placeholder="Amount (e.g., 2)" disabled style="opacity: 0.4;">
-                        <input type="text" id="newInventoryUnit" placeholder="Unit (e.g., cups)" disabled style="opacity: 0.4;">
+                        <input type="text" id="newInventoryName" placeholder="Item name (e.g., Flour)" style="flex: 1;">
+                        <button type="button" class="btn btn-secondary btn-small" id="inventoryAddQtyBtn" onclick="showInventoryQty()">+ Add qty</button>
+                        <input type="text" id="newInventoryAmount" placeholder="Amount (e.g., 2)" style="display: none;">
+                        <input type="text" id="newInventoryUnit" placeholder="Unit (e.g., cups)" style="display: none;">
                     </div>
                     <button class="btn btn-primary" onclick="addInventoryItem()">Add to Inventory</button>
                 </div>
@@ -940,17 +930,11 @@
                 <div class="wizard-step-title">Step 2 of 3: Add Daily Staples</div>
                 <p class="help-text">Items you need every day (coffee, water, cooking oil, etc.)</p>
 
-                <div class="form-group" style="margin-top: 15px;">
-                    <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer; font-weight: normal;">
-                        <input type="checkbox" id="wizardStapleNoQuantity" onchange="toggleWizardStapleQuantity()" style="width: 20px; height: 20px;" checked>
-                        <span>No quantity needed (just need to have it)</span>
-                    </label>
-                </div>
-
-                <div class="ingredient-input-row">
-                    <input type="text" id="wizardStapleName" placeholder="Item (e.g., K-Cup Coffee)">
-                    <input type="text" id="wizardStapleAmount" placeholder="N/A" disabled style="opacity: 0.4;">
-                    <input type="text" id="wizardStapleUnit" placeholder="N/A" disabled style="opacity: 0.4;">
+                <div class="ingredient-input-row" style="margin-top: 15px;">
+                    <input type="text" id="wizardStapleName" placeholder="Item (e.g., K-Cup Coffee)" style="flex: 1;">
+                    <button type="button" class="btn btn-secondary btn-small" id="wizardStapleAddQtyBtn" onclick="showWizardStapleQty()">+ Add qty</button>
+                    <input type="text" id="wizardStapleAmount" placeholder="Per day (e.g., 5)" style="display: none;">
+                    <input type="text" id="wizardStapleUnit" placeholder="Unit (e.g., cups)" style="display: none;">
                 </div>
 
                 <button class="btn btn-success" onclick="addWizardStaple()">+ Add This Staple</button>
@@ -976,16 +960,11 @@
                 <div class="wizard-step-title">Step 3 of 3: What's in the RV?</div>
                 <p class="help-text">Enter items you already have on hand.</p>
 
-                <div class="form-group" style="margin-top: 15px;">
-                    <label style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 10px; cursor: pointer; font-weight: normal;">
-                        <input type="checkbox" id="wizardInventoryNoQuantity" onchange="toggleWizardInventoryQty()" style="width: 20px; height: 20px;" checked>
-                        <span>No quantity needed (just need to have it)</span>
-                    </label>
-                </div>
-                <div class="ingredient-input-row">
-                    <input type="text" id="wizardInventoryName" placeholder="Item name (e.g., Flour)">
-                    <input type="text" id="wizardInventoryAmount" placeholder="Amount (e.g., 2)" disabled style="opacity: 0.4;">
-                    <input type="text" id="wizardInventoryUnit" placeholder="Unit (e.g., cups)" disabled style="opacity: 0.4;">
+                <div class="ingredient-input-row" style="margin-top: 15px;">
+                    <input type="text" id="wizardInventoryName" placeholder="Item name (e.g., Flour)" style="flex: 1;">
+                    <button type="button" class="btn btn-secondary btn-small" id="wizardInventoryAddQtyBtn" onclick="showWizardInventoryQty()">+ Add qty</button>
+                    <input type="text" id="wizardInventoryAmount" placeholder="Amount (e.g., 2)" style="display: none;">
+                    <input type="text" id="wizardInventoryUnit" placeholder="Unit (e.g., cups)" style="display: none;">
                 </div>
 
                 <button class="btn btn-success" onclick="addWizardInventory()">+ Add This Item</button>
@@ -1125,11 +1104,9 @@
             div.className = 'ingredient-input-row';
             div.innerHTML = `
                 <input type="text" placeholder="Item (e.g., Ground beef)" class="ing-name">
-                <input type="text" placeholder="Amount (e.g., 1)" class="ing-amount" disabled style="opacity: 0.4;">
-                <input type="text" placeholder="Unit (e.g., lb)" class="ing-unit" disabled style="opacity: 0.4;">
-                <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.85em; font-weight: normal; cursor: pointer; margin: 0;">
-                    <input type="checkbox" class="ing-no-qty" checked onchange="toggleIngredientQty(this)"> no qty
-                </label>
+                <button type="button" class="btn btn-secondary btn-small ing-add-qty-btn" onclick="showIngredientQty(this)">+ Add qty</button>
+                <input type="text" placeholder="Amount (e.g., 1)" class="ing-amount" style="display: none;">
+                <input type="text" placeholder="Unit (e.g., lb)" class="ing-unit" style="display: none;">
                 <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
             `;
             container.appendChild(div);
@@ -1146,17 +1123,15 @@
 
             ingredientRows.forEach(row => {
                 const ingName = row.querySelector('.ing-name').value.trim();
-                const noQtyCheckbox = row.querySelector('.ing-no-qty');
-                const noQty = noQtyCheckbox ? noQtyCheckbox.checked : false;
                 const ingAmount = row.querySelector('.ing-amount').value.trim();
                 const ingUnit = row.querySelector('.ing-unit').value.trim();
 
-                if (ingName && (noQty || ingAmount)) {
+                if (ingName) {
                     ingredients.push({
                         name: ingName,
-                        amount: noQty ? '' : ingAmount,
-                        unit: noQty ? '' : ingUnit,
-                        noQuantity: noQty
+                        amount: ingAmount,
+                        unit: ingUnit,
+                        noQuantity: !ingAmount
                     });
                 }
             });
@@ -1195,11 +1170,9 @@
                 div.className = 'ingredient-input-row';
                 div.innerHTML = `
                     <input type="text" placeholder="Item" class="ing-name" value="${escapeHtml(ing.name)}">
-                    <input type="text" placeholder="Amount" class="ing-amount" value="${escapeHtml(ing.amount)}" ${noQty ? 'disabled style="opacity: 0.4;"' : ''}>
-                    <input type="text" placeholder="Unit" class="ing-unit" value="${escapeHtml(ing.unit)}" ${noQty ? 'disabled style="opacity: 0.4;"' : ''}>
-                    <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.85em; font-weight: normal; cursor: pointer; margin: 0;">
-                        <input type="checkbox" class="ing-no-qty" ${noQty ? 'checked' : ''} onchange="toggleIngredientQty(this)"> no qty
-                    </label>
+                    <button type="button" class="btn btn-secondary btn-small ing-add-qty-btn" onclick="showIngredientQty(this)" style="${noQty ? '' : 'display: none;'}">+ Add qty</button>
+                    <input type="text" placeholder="Amount" class="ing-amount" value="${escapeHtml(ing.amount)}" style="${noQty ? 'display: none;' : ''}">
+                    <input type="text" placeholder="Unit" class="ing-unit" value="${escapeHtml(ing.unit)}" style="${noQty ? 'display: none;' : ''}">
                     <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
                 `;
                 container.appendChild(div);
@@ -1281,36 +1254,30 @@
 
         function addStaple() {
             const name = document.getElementById('newStapleName').value.trim();
-            const noQuantity = document.getElementById('stapleNoQuantity').checked;
+            const amountPerDay = document.getElementById('newStapleAmount').value.trim();
+            const unit = document.getElementById('newStapleUnit').value.trim();
 
             if (!name) {
                 alert('Please enter a name for the staple!');
                 return;
             }
 
-            if (noQuantity) {
-                staples.push({ name, noQuantity: true });
-            } else {
-                const amountPerDay = document.getElementById('newStapleAmount').value.trim();
-                const unit = document.getElementById('newStapleUnit').value.trim();
-
-                if (!amountPerDay) {
-                    alert('Please enter an amount per day, or check "No quantity needed"!');
-                    return;
-                }
-
+            if (amountPerDay) {
                 staples.push({ name, amountPerDay, unit, noQuantity: false });
+            } else {
+                staples.push({ name, noQuantity: true });
             }
 
             saveData();
             renderStaples();
 
-            // Clear inputs
+            // Reset form
             document.getElementById('newStapleName').value = '';
             document.getElementById('newStapleAmount').value = '';
             document.getElementById('newStapleUnit').value = '';
-            document.getElementById('stapleNoQuantity').checked = true;
-            toggleStapleQuantity();
+            document.getElementById('stapleAddQtyBtn').style.display = '';
+            document.getElementById('newStapleAmount').style.display = 'none';
+            document.getElementById('newStapleUnit').style.display = 'none';
         }
 
         function updateStapleAmount(index, value) {
@@ -1521,7 +1488,6 @@
 
         function addInventoryItem() {
             const name = document.getElementById('newInventoryName').value.trim();
-            const noQuantity = document.getElementById('inventoryNoQuantity').checked;
             const amount = document.getElementById('newInventoryAmount').value.trim();
             const unit = document.getElementById('newInventoryUnit').value.trim();
 
@@ -1530,26 +1496,22 @@
                 return;
             }
 
-            if (!noQuantity && !amount) {
-                alert('Please enter an amount, or check "No quantity needed"!');
-                return;
-            }
-
-            if (noQuantity) {
-                inventory.push({ name, noQuantity: true, amount: '', unit: '' });
-            } else {
+            if (amount) {
                 inventory.push({ name, amount, unit, noQuantity: false });
+            } else {
+                inventory.push({ name, noQuantity: true, amount: '', unit: '' });
             }
 
             saveData();
             renderInventory();
 
-            // Clear inputs
+            // Reset form
             document.getElementById('newInventoryName').value = '';
             document.getElementById('newInventoryAmount').value = '';
             document.getElementById('newInventoryUnit').value = '';
-            document.getElementById('inventoryNoQuantity').checked = true;
-            toggleInventoryQty();
+            document.getElementById('inventoryAddQtyBtn').style.display = '';
+            document.getElementById('newInventoryAmount').style.display = 'none';
+            document.getElementById('newInventoryUnit').style.display = 'none';
         }
 
         function updateInventoryAmount(index, value) {
@@ -1842,18 +1804,16 @@
             document.getElementById('wizardStapleName').value = '';
             document.getElementById('wizardStapleAmount').value = '';
             document.getElementById('wizardStapleUnit').value = '';
-            document.getElementById('wizardStapleNoQuantity').checked = false;
-            toggleWizardStapleQuantity();
+            document.getElementById('wizardStapleAddQtyBtn').style.display = '';
+            document.getElementById('wizardStapleAmount').style.display = 'none';
+            document.getElementById('wizardStapleUnit').style.display = 'none';
 
             document.getElementById('wizardInventoryName').value = '';
             document.getElementById('wizardInventoryAmount').value = '';
             document.getElementById('wizardInventoryUnit').value = '';
-
-            document.getElementById('wizardInventoryName').value = '';
-            document.getElementById('wizardInventoryAmount').value = '';
-            document.getElementById('wizardInventoryUnit').value = '';
-            document.getElementById('wizardInventoryNoQuantity').checked = true;
-            toggleWizardInventoryQty();
+            document.getElementById('wizardInventoryAddQtyBtn').style.display = '';
+            document.getElementById('wizardInventoryAmount').style.display = 'none';
+            document.getElementById('wizardInventoryUnit').style.display = 'none';
 
             // Hide all "items added" sections
             document.getElementById('wizardRecipesAdded').style.display = 'none';
@@ -1928,11 +1888,9 @@
             div.className = 'ingredient-input-row';
             div.innerHTML = `
                 <input type="text" placeholder="Item (e.g., Ground beef)" class="wizard-ing-name">
-                <input type="text" placeholder="Amount (e.g., 1)" class="wizard-ing-amount" disabled style="opacity: 0.4;">
-                <input type="text" placeholder="Unit (e.g., lb)" class="wizard-ing-unit" disabled style="opacity: 0.4;">
-                <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.85em; font-weight: normal; cursor: pointer; margin: 0;">
-                    <input type="checkbox" class="wizard-ing-no-qty" checked onchange="toggleWizardIngredientQty(this)"> no qty
-                </label>
+                <button type="button" class="btn btn-secondary btn-small wizard-ing-add-qty-btn" onclick="showIngredientQty(this, 'wizard')">+ Add qty</button>
+                <input type="text" placeholder="Amount (e.g., 1)" class="wizard-ing-amount" style="display: none;">
+                <input type="text" placeholder="Unit (e.g., lb)" class="wizard-ing-unit" style="display: none;">
                 <button type="button" class="btn btn-danger btn-small" onclick="this.parentElement.remove()" style="padding: 8px 12px;">X</button>
             `;
             container.appendChild(div);
@@ -1950,17 +1908,15 @@
 
             ingredientRows.forEach(row => {
                 const ingName = row.querySelector('.wizard-ing-name').value.trim();
-                const noQtyCheckbox = row.querySelector('.wizard-ing-no-qty');
-                const noQty = noQtyCheckbox ? noQtyCheckbox.checked : false;
                 const ingAmount = row.querySelector('.wizard-ing-amount').value.trim();
                 const ingUnit = row.querySelector('.wizard-ing-unit').value.trim();
 
-                if (ingName && (noQty || ingAmount)) {
+                if (ingName) {
                     ingredients.push({
                         name: ingName,
-                        amount: noQty ? '' : ingAmount,
-                        unit: noQty ? '' : ingUnit,
-                        noQuantity: noQty
+                        amount: ingAmount,
+                        unit: ingUnit,
+                        noQuantity: !ingAmount
                     });
                 }
             });
@@ -1998,60 +1954,34 @@
             }
         }
 
-        function toggleWizardStapleQuantity() {
-            const noQuantity = document.getElementById('wizardStapleNoQuantity').checked;
-            const amountInput = document.getElementById('wizardStapleAmount');
-            const unitInput = document.getElementById('wizardStapleUnit');
-
-            if (noQuantity) {
-                amountInput.disabled = true;
-                unitInput.disabled = true;
-                amountInput.value = '';
-                unitInput.value = '';
-                amountInput.placeholder = 'N/A';
-                unitInput.placeholder = 'N/A';
-            } else {
-                amountInput.disabled = false;
-                unitInput.disabled = false;
-                amountInput.placeholder = 'Per day (e.g., 5)';
-                unitInput.placeholder = 'Unit (e.g., cups)';
-            }
-        }
-
         function addWizardStaple() {
             const name = document.getElementById('wizardStapleName').value.trim();
-            const noQuantity = document.getElementById('wizardStapleNoQuantity').checked;
+            const amountPerDay = document.getElementById('wizardStapleAmount').value.trim();
+            const unit = document.getElementById('wizardStapleUnit').value.trim();
 
             if (!name) {
                 alert('Please enter a name for the staple!');
                 return;
             }
 
-            if (noQuantity) {
-                staples.push({ name, noQuantity: true });
-                wizardStaplesAddedList.push(name);
-            } else {
-                const amountPerDay = document.getElementById('wizardStapleAmount').value.trim();
-                const unit = document.getElementById('wizardStapleUnit').value.trim();
-
-                if (!amountPerDay) {
-                    alert('Please enter an amount per day, or check "No quantity needed"!');
-                    return;
-                }
-
+            if (amountPerDay) {
                 staples.push({ name, amountPerDay, unit, noQuantity: false });
                 wizardStaplesAddedList.push(`${name} (${amountPerDay} ${unit}/day)`);
+            } else {
+                staples.push({ name, noQuantity: true });
+                wizardStaplesAddedList.push(name);
             }
 
             saveData();
             renderWizardStaplesList();
 
-            // Clear form
+            // Reset form
             document.getElementById('wizardStapleName').value = '';
             document.getElementById('wizardStapleAmount').value = '';
             document.getElementById('wizardStapleUnit').value = '';
-            document.getElementById('wizardStapleNoQuantity').checked = true;
-            toggleWizardStapleQuantity();
+            document.getElementById('wizardStapleAddQtyBtn').style.display = '';
+            document.getElementById('wizardStapleAmount').style.display = 'none';
+            document.getElementById('wizardStapleUnit').style.display = 'none';
         }
 
         function renderWizardStaplesList() {
@@ -2068,7 +1998,6 @@
 
         function addWizardInventory() {
             const name = document.getElementById('wizardInventoryName').value.trim();
-            const noQuantity = document.getElementById('wizardInventoryNoQuantity').checked;
             const amount = document.getElementById('wizardInventoryAmount').value.trim();
             const unit = document.getElementById('wizardInventoryUnit').value.trim();
 
@@ -2077,28 +2006,24 @@
                 return;
             }
 
-            if (!noQuantity && !amount) {
-                alert('Please enter an amount, or check "No quantity needed"!');
-                return;
-            }
-
-            if (noQuantity) {
-                inventory.push({ name, noQuantity: true, amount: '', unit: '' });
-                wizardInventoryAddedList.push(name);
-            } else {
+            if (amount) {
                 inventory.push({ name, amount, unit, noQuantity: false });
                 wizardInventoryAddedList.push(`${name} (${amount} ${unit})`);
+            } else {
+                inventory.push({ name, noQuantity: true, amount: '', unit: '' });
+                wizardInventoryAddedList.push(name);
             }
 
             saveData();
             renderWizardInventoryList();
 
-            // Clear form
+            // Reset form
             document.getElementById('wizardInventoryName').value = '';
             document.getElementById('wizardInventoryAmount').value = '';
             document.getElementById('wizardInventoryUnit').value = '';
-            document.getElementById('wizardInventoryNoQuantity').checked = true;
-            toggleWizardInventoryQty();
+            document.getElementById('wizardInventoryAddQtyBtn').style.display = '';
+            document.getElementById('wizardInventoryAmount').style.display = 'none';
+            document.getElementById('wizardInventoryUnit').style.display = 'none';
         }
 
         function renderWizardInventoryList() {
@@ -2113,81 +2038,42 @@
             }
         }
 
-        // ============ TOGGLE HELPERS ============
-        function toggleIngredientQty(checkbox) {
-            const row = checkbox.closest('.ingredient-input-row');
-            const amountInput = row.querySelector('.ing-amount');
-            const unitInput = row.querySelector('.ing-unit');
-            if (checkbox.checked) {
-                amountInput.disabled = true;
-                amountInput.value = '';
-                amountInput.style.opacity = '0.4';
-                unitInput.disabled = true;
-                unitInput.value = '';
-                unitInput.style.opacity = '0.4';
-            } else {
-                amountInput.disabled = false;
-                amountInput.style.opacity = '1';
-                unitInput.disabled = false;
-                unitInput.style.opacity = '1';
-            }
+        // ============ SHOW QTY HELPERS ============
+        function showIngredientQty(button, type) {
+            const prefix = type === 'wizard' ? '.wizard-ing-' : '.ing-';
+            const row = button.closest('.ingredient-input-row');
+            button.style.display = 'none';
+            row.querySelector(prefix + 'amount').style.display = '';
+            row.querySelector(prefix + 'unit').style.display = '';
+            row.querySelector(prefix + 'amount').focus();
         }
 
-        function toggleWizardIngredientQty(checkbox) {
-            const row = checkbox.closest('.ingredient-input-row');
-            const amountInput = row.querySelector('.wizard-ing-amount');
-            const unitInput = row.querySelector('.wizard-ing-unit');
-            if (checkbox.checked) {
-                amountInput.disabled = true;
-                amountInput.value = '';
-                amountInput.style.opacity = '0.4';
-                unitInput.disabled = true;
-                unitInput.value = '';
-                unitInput.style.opacity = '0.4';
-            } else {
-                amountInput.disabled = false;
-                amountInput.style.opacity = '1';
-                unitInput.disabled = false;
-                unitInput.style.opacity = '1';
-            }
+        function showStapleQty() {
+            document.getElementById('stapleAddQtyBtn').style.display = 'none';
+            document.getElementById('newStapleAmount').style.display = '';
+            document.getElementById('newStapleUnit').style.display = '';
+            document.getElementById('newStapleAmount').focus();
         }
 
-        function toggleInventoryQty() {
-            const noQuantity = document.getElementById('inventoryNoQuantity').checked;
-            const amountInput = document.getElementById('newInventoryAmount');
-            const unitInput = document.getElementById('newInventoryUnit');
-            if (noQuantity) {
-                amountInput.disabled = true;
-                amountInput.value = '';
-                amountInput.style.opacity = '0.4';
-                unitInput.disabled = true;
-                unitInput.value = '';
-                unitInput.style.opacity = '0.4';
-            } else {
-                amountInput.disabled = false;
-                amountInput.style.opacity = '1';
-                unitInput.disabled = false;
-                unitInput.style.opacity = '1';
-            }
+        function showInventoryQty() {
+            document.getElementById('inventoryAddQtyBtn').style.display = 'none';
+            document.getElementById('newInventoryAmount').style.display = '';
+            document.getElementById('newInventoryUnit').style.display = '';
+            document.getElementById('newInventoryAmount').focus();
         }
 
-        function toggleWizardInventoryQty() {
-            const noQuantity = document.getElementById('wizardInventoryNoQuantity').checked;
-            const amountInput = document.getElementById('wizardInventoryAmount');
-            const unitInput = document.getElementById('wizardInventoryUnit');
-            if (noQuantity) {
-                amountInput.disabled = true;
-                amountInput.value = '';
-                amountInput.style.opacity = '0.4';
-                unitInput.disabled = true;
-                unitInput.value = '';
-                unitInput.style.opacity = '0.4';
-            } else {
-                amountInput.disabled = false;
-                amountInput.style.opacity = '1';
-                unitInput.disabled = false;
-                unitInput.style.opacity = '1';
-            }
+        function showWizardStapleQty() {
+            document.getElementById('wizardStapleAddQtyBtn').style.display = 'none';
+            document.getElementById('wizardStapleAmount').style.display = '';
+            document.getElementById('wizardStapleUnit').style.display = '';
+            document.getElementById('wizardStapleAmount').focus();
+        }
+
+        function showWizardInventoryQty() {
+            document.getElementById('wizardInventoryAddQtyBtn').style.display = 'none';
+            document.getElementById('wizardInventoryAmount').style.display = '';
+            document.getElementById('wizardInventoryUnit').style.display = '';
+            document.getElementById('wizardInventoryAmount').focus();
         }
 
         // ============ UTILITIES ============
@@ -2326,8 +2212,6 @@
         // ============ INITIALIZATION ============
         loadData();
         renderTripPlanner();
-        toggleStapleQuantity();
-        toggleInventoryQty();
     </script>
 </body>
 </html>
