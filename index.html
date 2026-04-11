@@ -771,7 +771,11 @@
                         <input type="number" id="tripDays" min="1" max="30" value="1" style="width: 80px; text-align: center; font-size: 1.2em;" onchange="updateTripDays(this.value)">
                         <span style="font-size: 1.1em;">days</span>
                     </div>
-                    <p class="help-text">Daily staples will be multiplied by this number.</p>
+                    <div style="margin-top: 15px;">
+                        <label for="tripStartDate" style="font-size: 1em; margin-bottom: 6px;">Trip start date <span style="font-weight: 400; color: #6c757d;">(optional)</span></label>
+                        <input type="date" id="tripStartDate" style="width: auto; font-size: 1em;" onchange="updateTripStartDate(this.value)">
+                    </div>
+                    <p class="help-text">Daily staples will be multiplied by the number of days.</p>
                 </div>
 
                 <h3>What's on the menu?</h3>
@@ -994,6 +998,7 @@
         let staples = [];
         let dayAssignments = {}; // { dayNumber: recipeIndex }
         let tripDays = 1;
+        let tripStartDate = ''; // 'YYYY-MM-DD' or empty
         let calculatedNeeds = [];
         let calculatedStaples = [];
         let packedItems = {}; // Track which items are packed by key
@@ -1004,6 +1009,7 @@
             const savedStaples = localStorage.getItem('mealPlanner_staples');
             const savedDayAssignments = localStorage.getItem('mealPlanner_dayAssignments');
             const savedTripDays = localStorage.getItem('mealPlanner_tripDays');
+            const savedStartDate = localStorage.getItem('mealPlanner_tripStartDate');
             const savedNeeds = localStorage.getItem('mealPlanner_calculatedNeeds');
             const savedCalcStaples = localStorage.getItem('mealPlanner_calculatedStaples');
             const savedPacked = localStorage.getItem('mealPlanner_packedItems');
@@ -1021,6 +1027,7 @@
                 });
             }
             if (savedTripDays) tripDays = parseInt(savedTripDays) || 1;
+            if (savedStartDate) tripStartDate = savedStartDate;
             if (savedNeeds) calculatedNeeds = JSON.parse(savedNeeds);
             if (savedCalcStaples) calculatedStaples = JSON.parse(savedCalcStaples);
             if (savedPacked) packedItems = JSON.parse(savedPacked);
@@ -1032,6 +1039,7 @@
             localStorage.setItem('mealPlanner_staples', JSON.stringify(staples));
             localStorage.setItem('mealPlanner_dayAssignments', JSON.stringify(dayAssignments));
             localStorage.setItem('mealPlanner_tripDays', tripDays.toString());
+            localStorage.setItem('mealPlanner_tripStartDate', tripStartDate);
             localStorage.setItem('mealPlanner_calculatedNeeds', JSON.stringify(calculatedNeeds));
             localStorage.setItem('mealPlanner_calculatedStaples', JSON.stringify(calculatedStaples));
             localStorage.setItem('mealPlanner_packedItems', JSON.stringify(packedItems));
@@ -1294,8 +1302,19 @@
         }
 
         // ============ TRIP PLANNER ============
+        function getDayLabel(day) {
+            if (!tripStartDate) return `Day ${day}`;
+            const date = new Date(tripStartDate + 'T00:00:00');
+            date.setDate(date.getDate() + day - 1);
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+            const month = date.toLocaleDateString('en-US', { month: 'short' });
+            const dayNum = date.getDate();
+            return `Day ${day} <span style="font-weight: 400; color: #6c757d; font-size: 0.88em;">— ${dayName}, ${month} ${dayNum}</span>`;
+        }
+
         function renderTripPlanner() {
             document.getElementById('tripDays').value = tripDays;
+            document.getElementById('tripStartDate').value = tripStartDate;
 
             const container = document.getElementById('tripRecipeList');
             if (recipes.length === 0) {
@@ -1324,7 +1343,7 @@
 
                 html += `
                     <div class="day-row">
-                        <span class="day-label">Day ${day}</span>
+                        <span class="day-label">${getDayLabel(day)}</span>
                         <div class="day-meals">
                             ${chips}
                             <select class="day-add-select" onchange="if(this.value !== '') { addMealToDay(${day}, parseInt(this.value)); this.value=''; }">
@@ -1343,6 +1362,12 @@
             if (tripDays < 1) tripDays = 1;
             if (tripDays > 30) tripDays = 30;
             document.getElementById('tripDays').value = tripDays;
+            saveData();
+            renderTripPlanner();
+        }
+
+        function updateTripStartDate(value) {
+            tripStartDate = value || '';
             saveData();
             renderTripPlanner();
         }
@@ -1544,7 +1569,17 @@
             for (let day = 1; day <= tripDays; day++) {
                 const meals = dayAssignments[day] || [];
                 const names = meals.map(idx => recipes[idx]?.name).filter(Boolean);
-                if (names.length > 0) mealsByDay.push(`Day ${day}: ${names.join(', ')}`);
+                if (names.length > 0) {
+                    let label = `Day ${day}`;
+                    if (tripStartDate) {
+                        const d = new Date(tripStartDate + 'T00:00:00');
+                        d.setDate(d.getDate() + day - 1);
+                        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                        const month = d.toLocaleDateString('en-US', { month: 'short' });
+                        label += ` (${dayName}, ${month} ${d.getDate()})`;
+                    }
+                    mealsByDay.push(`${label}: ${names.join(', ')}`);
+                }
             }
 
             // Count items that need to be packed (exclude items we already have)
@@ -1584,10 +1619,19 @@
                 }
             });
 
+            let tripDateRange = '';
+            if (tripStartDate) {
+                const start = new Date(tripStartDate + 'T00:00:00');
+                const end = new Date(tripStartDate + 'T00:00:00');
+                end.setDate(end.getDate() + tripDays - 1);
+                const fmt = d => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                tripDateRange = tripDays > 1 ? ` (${fmt(start)} – ${fmt(end)})` : ` (${fmt(start)})`;
+            }
+
             let html = `
                 <div class="summary-box">
                     <h3>Trip Summary</h3>
-                    <p><strong>Trip length:</strong> ${tripDays} day${tripDays > 1 ? 's' : ''}</p>
+                    <p><strong>Trip length:</strong> ${tripDays} day${tripDays > 1 ? 's' : ''}${tripDateRange}</p>
                     ${mealsByDay.length > 0 ? `<p><strong>Meals:</strong> ${mealsByDay.join(' &nbsp;·&nbsp; ')}</p>` : ''}
                     <p><strong>Packed:</strong> ${packedCount} of ${itemsToPack} items to pack</p>
                 </div>
@@ -2094,6 +2138,7 @@
                 staples: staples,
                 dayAssignments: dayAssignments,
                 tripDays: tripDays,
+                tripStartDate: tripStartDate,
                 calculatedNeeds: calculatedNeeds,
                 calculatedStaples: calculatedStaples,
                 packedItems: packedItems
@@ -2173,6 +2218,7 @@
                         }
                     });
                     tripDays = data.tripDays || 1;
+                    tripStartDate = data.tripStartDate || '';
                     calculatedNeeds = data.calculatedNeeds || [];
                     calculatedStaples = data.calculatedStaples || [];
                     packedItems = data.packedItems || {};
